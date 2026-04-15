@@ -1,0 +1,29 @@
+<!--pages/library-add/library-add.wxml-->
+<navigation-bar title="{{isEdit ? '修改歌曲' : '添加歌曲'}}" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <view class="page-title">{{isEdit ? '修改歌曲' : '添加歌曲'}}</view>
+    <view class="page-subtitle">{{isEdit ? '修改歌曲信息' : '添加歌曲到你的曲库'}}</view>
+  </view>
+
+  <!-- 歌曲名称输入 -->
+  <view class="input-group">
+    <text class="input-label">歌曲名称</text>
+    <input class="input" placeholder="请输入歌曲名称" value="{{songName}}" bindinput="onSongNameInput" />
+  </view>
+
+  <!-- 歌手/演唱者输入 -->
+  <view class="input-group">
+    <text class="input-label">歌手</text>
+    <input class="input" placeholder="请输入歌手名称" value="{{artist}}" bindinput="onArtistInput" />
+  </view>
+
+  <!-- 确认按钮 -->
+  <view class="confirm-section">
+    <button class="confirm-btn {{songName && artist ? 'enabled' : 'disabled'}}" bindtap="onConfirm" disabled="{{!songName || !artist}}">
+      {{isEdit ? '保存修改' : '确认添加'}}
+    </button>
+  </view>
+</view>

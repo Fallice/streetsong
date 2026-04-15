@@ -1,0 +1,35 @@
+<navigation-bar title="创建歌单" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<view class="container">
+  <!-- 标题 -->
+  <view class="page-header">
+    <view class="page-title">创建歌单</view>
+    <view class="page-subtitle">为你的街唱演出创建一个歌单</view>
+  </view>
+
+  <!-- 输入框 -->
+  <view class="input-section">
+    <view class="input-label">歌单名称</view>
+    <input class="playlist-name-input"
+           placeholder="请输入歌单名称"
+           value="{{playlistName}}"
+           bindinput="onInputChange"
+           maxlength="20"/>
+    <view class="input-hint">{{playlistName.length}}/20</view>
+  </view>
+
+  <!-- 提示文字 -->
+  <view class="hint">
+    <text class="hint-icon">💡</text>
+    <text class="hint-text">创建成功后可添加歌曲并开始街唱</text>
+  </view>
+
+  <!-- 确认按钮 -->
+  <view class="confirm-section">
+    <button class="confirm-btn {{playlistName ? 'enabled' : 'disabled'}}"
+            bindtap="createPlaylist"
+            disabled="{{!playlistName}}">
+      确认创建
+    </button>
+  </view>
+</view>

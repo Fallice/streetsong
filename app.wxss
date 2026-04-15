@@ -1,0 +1,342 @@
+/**app.wxss - 街唱小程序全局样式**/
+/** 温暖音乐现场主题 **/
+
+/* ===== 页面基础 ===== */
+page {
+  background-color: #FAF7F2;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: #2C2419;
+  line-height: 1.5;
+}
+
+/* ===== 主色调变量（通过类名实现） ===== */
+/* 主色 - 舞台暖光琥珀 */
+.color-primary { color: #D4A574; }
+.color-primary-dark { color: #B88A5A; }
+
+/* 强调色 - 珊瑚玫瑰 */
+.color-accent { color: #E07A5F; }
+
+/* 背景色 */
+.bg-page { background-color: #FAF7F2; }
+.bg-cream { background-color: #F5F0E8; }
+.bg-card { background-color: #FFFFFF; }
+
+/* 文字色 - 温润棕色系 */
+.text-primary { color: #2C2419; }
+.text-secondary { color: #5C5143; }
+.text-tertiary { color: #8B7D6B; }
+.text-muted { color: #B5A99A; }
+
+/* ===== 容器 ===== */
+.container {
+  min-height: 100vh;
+  padding: 32rpx;
+  padding-bottom: 200rpx;
+  box-sizing: border-box;
+}
+
+/* ===== 按钮系统 ===== */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+  outline: none;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* 主要按钮 - 琥珀渐变 */
+.btn-primary {
+  background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 16rpx rgba(212, 165, 116, 0.4);
+}
+
+.btn-primary:active {
+  box-shadow: 0 2rpx 8rpx rgba(212, 165, 116, 0.3);
+}
+
+/* 次要按钮 */
+.btn-secondary {
+  background: #FFFFFF;
+  color: #2C2419;
+  border: 2rpx solid #E8E0D4;
+}
+
+/* 强调按钮 - 珊瑚色 */
+.btn-accent {
+  background: linear-gradient(135deg, #E07A5F 0%, #C96A52 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 16rpx rgba(224, 122, 95, 0.4);
+}
+
+/* 幽灵按钮 */
+.btn-ghost {
+  background: transparent;
+  color: #B88A5A;
+  border: 2rpx solid #D4A574;
+}
+
+/* 按钮尺寸 */
+.btn-large {
+  height: 100rpx;
+  font-size: 34rpx;
+}
+
+.btn-medium {
+  height: 88rpx;
+  font-size: 30rpx;
+}
+
+.btn-small {
+  height: 72rpx;
+  font-size: 28rpx;
+  padding: 0 40rpx;
+}
+
+/* ===== 卡片系统 ===== */
+.card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow:
+    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
+    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
+  margin-bottom: 24rpx;
+}
+
+.card-hover:active {
+  transform: translateY(2rpx);
+  box-shadow:
+    0 2rpx 12rpx rgba(212, 165, 116, 0.06),
+    0 1rpx 2rpx rgba(44, 36, 25, 0.02);
+}
+
+/* ===== 输入框 ===== */
+.input {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 28rpx;
+  background: #F5F0E8;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  color: #2C2419;
+  border: 2rpx solid transparent;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  border-color: #D4A574;
+  background: #FFFFFF;
+}
+
+.input::placeholder {
+  color: #B5A99A;
+}
+
+/* ===== 标签 ===== */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.tag-primary {
+  background: rgba(212, 165, 116, 0.15);
+  color: #B88A5A;
+}
+
+.tag-accent {
+  background: rgba(224, 122, 95, 0.15);
+  color: #E07A5F;
+}
+
+/* ===== 分割线 ===== */
+.divider {
+  height: 2rpx;
+  background: #F0EBE3;
+  margin: 32rpx 0;
+}
+
+/* ===== 底部导航 ===== */
+.bottom-tabs {
+  position: fixed;
+  bottom: 40rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600rpx;
+  height: 112rpx;
+  background: #FFFFFF;
+  border-radius: 56rpx;
+  box-shadow:
+    0 8rpx 32rpx rgba(212, 165, 116, 0.15),
+    0 2rpx 8rpx rgba(44, 36, 25, 0.08);
+  display: flex;
+  align-items: center;
+  padding: 8rpx;
+  z-index: 100;
+}
+
+.bottom-tab {
+  flex: 1;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #8B7D6B;
+  border-radius: 48rpx;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.bottom-tab.active {
+  background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 16rpx rgba(212, 165, 116, 0.4);
+}
+
+/* ===== 布局工具 ===== */
+.flex { display: flex; }
+.flex-column { flex-direction: column; }
+.flex-center { align-items: center; justify-content: center; }
+.flex-between { justify-content: space-between; }
+.flex-1 { flex: 1; }
+.flex-wrap { flex-wrap: wrap; }
+
+/* ===== 间距 ===== */
+.mt-16 { margin-top: 16rpx; }
+.mt-24 { margin-top: 24rpx; }
+.mt-32 { margin-top: 32rpx; }
+.mt-40 { margin-top: 40rpx; }
+.mt-48 { margin-top: 48rpx; }
+
+.mb-16 { margin-bottom: 16rpx; }
+.mb-24 { margin-bottom: 24rpx; }
+.mb-32 { margin-bottom: 32rpx; }
+.mb-40 { margin-bottom: 40rpx; }
+.mb-48 { margin-bottom: 48rpx; }
+
+.p-16 { padding: 16rpx; }
+.p-24 { padding: 24rpx; }
+.p-32 { padding: 32rpx; }
+.p-40 { padding: 40rpx; }
+
+/* ===== 文字工具 ===== */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+
+.text-xs { font-size: 22rpx; }
+.text-sm { font-size: 26rpx; }
+.text-base { font-size: 30rpx; }
+.text-lg { font-size: 34rpx; }
+.text-xl { font-size: 40rpx; }
+.text-2xl { font-size: 48rpx; }
+
+/* ===== 空状态 ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 40rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(212, 165, 116, 0.08);
+  margin-bottom: 32rpx;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  color: #5C5143;
+  font-weight: 500;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: #8B7D6B;
+  margin-top: 12rpx;
+}
+
+/* ===== 安全区域 ===== */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ===== 图标按钮 ===== */
+.icon-btn {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 20rpx;
+  background: #F5F0E8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:active {
+  background: #E8C9A0;
+  transform: scale(0.95);
+}
+
+/* ===== 列表项 ===== */
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  margin-bottom: 16rpx;
+  transition: all 0.2s ease;
+}
+
+.list-item:active {
+  background: #F5F0E8;
+}
+
+/* ===== 动画 ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}

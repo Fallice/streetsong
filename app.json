@@ -1,0 +1,36 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/profile/profile",
+    "pages/login/login",
+    "pages/playlist-qr/playlist-qr",
+    "pages/library/library",
+    "pages/library-add/library-add",
+    "pages/playlists/playlists",
+    "pages/create-playlist/create-playlist",
+    "pages/playlist-detail/playlist-detail",
+    "pages/singing/singing",
+    "pages/singing-list/singing-list",
+    "pages/audience-point/audience-point",
+    "pages/point-song/point-song",
+    "pages/performances/performances"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom"
+  },
+  "style": "v2",
+  "renderer": "skyline",
+  "rendererOptions": {
+    "skyline": {
+      "defaultDisplayBlock": true,
+      "defaultContentBox": true,
+      "disableABTest": true,
+      "sdkVersionBegin": "3.0.0",
+      "sdkVersionEnd": "15.255.255"
+    }
+  },
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

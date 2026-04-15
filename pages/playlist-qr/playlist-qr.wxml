@@ -1,0 +1,39 @@
+<!--pages/playlist-qr/playlist-qr.wxml-->
+<navigation-bar title="歌单二维码" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<view class="container">
+  <view class="qr-card">
+    <view class="card-header">
+      <view class="playlist-icon">🎼</view>
+      <view class="playlist-name">{{playlistName}}</view>
+    </view>
+
+    <view class="qr-container">
+      <image wx:if="{{qrCodeUrl}}" class="qr-image" src="{{qrCodeUrl}}" mode="aspectFit" show-menu-by-longpress></image>
+      <view wx:else class="qr-loading">
+        <view class="loading-spinner"></view>
+        <text class="loading-text">生成二维码中...</text>
+      </view>
+    </view>
+
+    <view class="qr-tip">
+      <text class="tip-icon">📱</text>
+      <text>扫码即可查看歌单并点歌</text>
+    </view>
+  </view>
+
+  <view class="action-btns">
+    <button class="save-btn {{qrCodeUrl ? 'enabled' : 'disabled'}}" bindtap="saveQRCode" disabled="{{!qrCodeUrl}}">
+      <text class="btn-icon">💾</text>
+      <text>保存至本地</text>
+    </button>
+
+    <button class="share-btn {{qrCodeUrl ? 'enabled' : 'disabled'}}" open-type="share" disabled="{{!qrCodeUrl}}">
+      <text class="btn-icon">↗️</text>
+      <text>分享给好友</text>
+    </button>
+  </view>
+
+  <!-- 隐藏的Canvas用于生成备用二维码 -->
+  <canvas type="2d" id="qrCanvas" class="qr-canvas"></canvas>
+</view>

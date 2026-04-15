@@ -1,0 +1,42 @@
+<navigation-bar title="歌曲列表" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <!-- 空状态 -->
+    <view wx:if="{{singingList.length === 0}}" class="empty-state">
+      <view class="empty-icon">🎵</view>
+      <view class="empty-text">暂无歌曲</view>
+      <view class="empty-desc">等待歌手添加歌曲</view>
+    </view>
+
+    <!-- 歌曲列表 -->
+    <view wx:else class="song-list">
+      <view wx:for="{{singingList}}" wx:key="id"
+            class="song-item {{index === 0 ? 'current' : ''}}"
+            bindtap="{{index >= 2 ? 'likeSong' : ''}}"
+            data-song-id="{{item.id}}"
+            data-index="{{index}}">
+        <view class="song-index {{index === 0 ? 'playing' : ''}}">{{index + 1}}</view>
+        <view class="song-info">
+          <view class="song-name">{{item.name}}</view>
+          <view class="song-artist">{{item.artist}}</view>
+        </view>
+        <view wx:if="{{index === 0}}" class="status-badge">演唱中</view>
+        <view wx:if="{{index >= 2}}" class="like-section">
+          <view class="like-count {{userLikes[item.id] ? 'liked' : ''}}">{{item.priority || 0}}</view>
+          <view class="like-icon">{{userLikes[item.id] ? '❤️' : '🤍'}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>
+
+<!-- 底部点歌按钮 -->
+<view class="footer">
+  <button class="point-btn {{hasOrderedSong ? 'disabled' : ''}}"
+          bindtap="showPointModal"
+          disabled="{{hasOrderedSong}}">
+    <text class="btn-icon">{{hasOrderedSong ? '✓' : '+'}}</text>
+    {{hasOrderedSong ? '已点歌' : '点歌'}}
+  </button>
+</view>

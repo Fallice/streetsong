@@ -1,0 +1,14 @@
+<!-- 底部导航栏组件 tab-bar.wxml -->
+<view class="tab-bar">
+  <view
+    wx:for="{{list}}"
+    wx:key="pagePath"
+    class="tab-bar-item {{index === selected ? 'active' : ''}}"
+    data-path="{{item.pagePath}}"
+    data-index="{{index}}"
+    bindtap="switchTab"
+  >
+    <view class="tab-bar-icon">{{getIcon(item.iconType, index === selected)}}</view>
+    <view class="tab-bar-text">{{item.text}}</view>
+  </view>
+</view>

@@ -1,0 +1,46 @@
+<navigation-bar title="我的歌单" back="{{false}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <!-- 空状态 -->
+    <view wx:if="{{playlists.length === 0}}" class="empty-state">
+      <view class="empty-icon">🎵</view>
+      <view class="empty-text">还没有歌单</view>
+      <view class="empty-desc">创建你的第一个街唱歌单</view>
+      <button class="create-btn" bindtap="createPlaylist">
+        创建歌单
+      </button>
+    </view>
+
+    <!-- 歌单列表 -->
+    <view wx:else class="playlist-list">
+      <view wx:for="{{playlists}}" wx:key="id" class="playlist-card">
+        <view class="playlist-main" bindtap="viewPlaylistDetail" data-playlist-id="{{item.id}}">
+          <view class="playlist-cover">
+            <view class="cover-icon">🎼</view>
+          </view>
+          <view class="playlist-content">
+            <view class="playlist-name">{{item.name}}</view>
+            <view class="song-count">{{item.songs.length}} 首歌</view>
+          </view>
+          <view class="arrow">
+            <text class="arrow-icon">›</text>
+          </view>
+        </view>
+        <view class="playlist-actions">
+          <view class="action-btn qr-btn" catchtap="showPlaylistQR" data-playlist-id="{{item.id}}" data-playlist-name="{{item.name}}">
+            <text class="action-icon">📱</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>
+
+<!-- 底部创建歌单按钮 -->
+<view wx:if="{{playlists.length > 0}}" class="footer">
+  <button class="create-btn" bindtap="createPlaylist">
+    <text class="btn-icon">+</text>
+    创建歌单
+  </button>
+</view>

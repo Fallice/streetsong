@@ -1,0 +1,58 @@
+<!--pages/library/library.wxml-->
+<navigation-bar title="我的曲库" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<view class="container">
+  <!-- 空状态 -->
+  <view wx:if="{{songs.length === 0}}" class="empty-state">
+    <view class="empty-icon">🎵</view>
+    <view class="empty-text">曲库还是空的</view>
+    <view class="empty-desc">添加你喜欢的歌曲吧</view>
+    <view class="add-btn" bindtap="goToAddSong">
+      <text class="btn-icon">+</text>
+      <text>添加歌曲</text>
+    </view>
+  </view>
+
+  <!-- 歌曲列表 -->
+  <view wx:else class="song-list">
+    <view wx:for="{{songs}}" wx:key="id" class="song-item">
+      <view class="song-index">{{index + 1}}</view>
+
+      <view class="song-card">
+        <view class="song-info">
+          <view class="song-name">{{item.name}}</view>
+          <view class="song-artist">{{item.artist}}</view>
+        </view>
+
+        <view class="song-actions">
+          <view class="action-btn sort-btn" bindtap="showSortOptions" data-index="{{index}}">
+            <text class="action-icon">⇅</text>
+          </view>
+          <view class="action-btn more-btn" bindtap="showMoreOptions" data-id="{{item.id}}" data-index="{{index}}">
+            <text class="action-icon">⋯</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 添加按钮（悬浮） -->
+<view wx:if="{{songs.length > 0}}" class="fab-add" bindtap="goToAddSong">
+  <text class="fab-icon">+</text>
+</view>
+
+<!-- 更多操作弹窗 -->
+<view wx:if="{{showActionSheet}}" class="action-sheet-mask" bindtap="hideActionSheet">
+  <view class="action-sheet" catchtap="preventBubble">
+    <view class="action-item" bindtap="editSong">
+      <text class="item-icon">✏️</text>
+      <text>修改</text>
+    </view>
+    <view class="divider"></view>
+    <view class="action-item delete" bindtap="deleteSong">
+      <text class="item-icon">🗑️</text>
+      <text>删除</text>
+    </view>
+  </view>
+</view>

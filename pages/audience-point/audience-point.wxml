@@ -1,0 +1,99 @@
+<navigation-bar title="扫码点歌" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<!-- 扫码区域 -->
+<view class="scan-container" wx:if="{{showScanArea}}">
+  <view wx:if="{{showError}}" class="error-container">
+    <view class="error-icon">❌</view>
+    <view class="error-message">{{errorMsg}}</view>
+    <button class="btn btn-primary btn-small" bindtap="reScan">
+      重新扫描
+    </button>
+  </view>
+  <view wx:else class="scan-content">
+    <view class="scan-icon-wrapper">
+      <view class="scan-icon-bg">
+        <text class="scan-icon">📱</text>
+      </view>
+    </view>
+    <view class="scan-text">扫描歌手二维码</view>
+    <view class="scan-hint">{{isScanning ? '扫描中...' : '点击下方按钮开始扫描'}}</view>
+    <button class="btn btn-primary btn-medium" bindtap="scanCode" disabled="{{isScanning}}">
+      {{isScanning ? '扫描中...' : '开始扫描'}}
+    </button>
+  </view>
+</view>
+
+<scroll-view class="scrollarea" scroll-y type="list" wx:if="{{!showScanArea}}">
+  <view class="container">
+    <!-- 正在演唱 -->
+    <view class="current-section" wx:if="{{singingList.length > 0}}">
+      <view class="section-title">
+        <text class="title-icon">🎤</text>
+        <text>正在演唱</text>
+      </view>
+      <view class="current-song-card">
+        <view class="song-index playing">1</view>
+        <view class="song-info">
+          <view class="song-name">{{singingList[0].name}}</view>
+          <view class="song-artist">{{singingList[0].artist}}</view>
+        </view>
+        <view class="playing-badge">演唱中</view>
+      </view>
+    </view>
+
+    <!-- 下一首 -->
+    <view class="next-section" wx:if="{{singingList.length > 1}}">
+      <view class="section-title">
+        <text class="title-icon">⏭</text>
+        <text>下一首</text>
+      </view>
+      <view class="next-song-card">
+        <view class="song-index">2</view>
+        <view class="song-info">
+          <view class="song-name">{{singingList[1].name}}</view>
+          <view class="song-artist">{{singingList[1].artist}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 歌曲列表 -->
+    <view class="song-list-section" wx:if="{{singingList.length > 2}}">
+      <view class="section-title">
+        <text class="title-icon">📋</text>
+        <text>歌曲列表</text>
+      </view>
+      <view class="song-list">
+        <view wx:for="{{singingList}}" wx:key="id" wx:if="{{index >= 2}}"
+              class="song-item {{userLikes[item.id] ? 'liked' : ''}}">
+          <view class="song-index">{{index + 1}}</view>
+          <view class="song-info">
+            <view class="song-name">{{item.name}}</view>
+            <view class="song-artist">{{item.artist}}</view>
+          </view>
+          <view class="like-section" bindtap="likeSong" data-song-id="{{item.id}}" data-index="{{index}}">
+            <view class="like-icon {{userLikes[item.id] ? 'liked' : ''}}">
+              {{userLikes[item.id] ? '❤️' : '🤍'}}
+            </view>
+            <view class="like-count {{userLikes[item.id] ? 'liked' : ''}}">{{item.priority || 0}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{singingList.length === 0}}" class="empty-state">
+      <view class="empty-icon">🎵</view>
+      <view class="empty-text">暂无歌曲</view>
+      <view class="empty-desc">点击下方按钮点歌</view>
+    </view>
+  </view>
+</scroll-view>
+
+<!-- 点歌按钮 -->
+<view class="point-btn-container" wx:if="{{!showScanArea}}">
+  <button class="point-btn {{hasOrderedSong ? 'disabled' : ''}}"
+          bindtap="showPointModal"
+          disabled="{{hasOrderedSong}}">
+    {{hasOrderedSong ? '已点歌' : '点歌'}}
+  </button>
+</view>

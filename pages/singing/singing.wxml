@@ -1,0 +1,97 @@
+<navigation-bar title="" back="{{false}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<scroll-view class="scrollarea" scroll-y>
+  <view class="container">
+    <!-- 结束演唱按钮 -->
+    <view class="header">
+      <view class="end-btn" bindtap="endSinging">
+        <view class="end-icon-wrapper">
+          <text class="end-icon">⏱</text>
+        </view>
+        <view class="end-text">结束演唱</view>
+      </view>
+    </view>
+
+    <!-- 演唱统计 -->
+    <view class="stats">
+      <view class="stat-item">
+        <text class="stat-label">正在演唱</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">已演唱</text>
+        <text class="stat-value">{{sungCount}}</text>
+        <text class="stat-unit">首</text>
+      </view>
+    </view>
+
+    <!-- 当前演唱卡片 -->
+    <view class="current-card">
+      <view class="song-header">
+        <view class="song-name">{{currentSong ? currentSong.name : '暂无歌曲'}}</view>
+        <view class="song-artist">{{currentSong ? currentSong.artist : ''}}</view>
+      </view>
+
+      <view class="message-section" wx:if="{{currentSong && currentSong.message}}">
+        <view class="user-info">
+          <view class="user-avatar"></view>
+          <view class="user-name">{{currentSong.userName || '观众'}}</view>
+        </view>
+        <view class="message-box">
+          <view class="message-label">点歌寄语</view>
+          <view class="message-text">{{currentSong.message}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 下一首按钮 -->
+    <view class="next-section">
+      <view class="next-btn" bindtap="nextSong">
+        <text class="next-text">下一首</text>
+      </view>
+    </view>
+
+    <!-- 剩余歌曲 -->
+    <view class="remaining" wx:if="{{remainingCount > 0}}">
+      <view class="remaining-text">剩余 <text class="remaining-count">{{remainingCount}}</text> 首</view>
+    </view>
+
+    <!-- 下一首歌曲 -->
+    <view class="next-song-section" wx:if="{{nextSong}}">
+      <view class="next-label">接下来</view>
+      <view class="next-song-card">
+        <view class="next-song-info">
+          <view class="next-song-name">{{nextSong.name}}</view>
+          <view class="next-song-artist">{{nextSong.artist}}</view>
+        </view>
+        <view class="list-btn" bindtap="showList">
+          <text class="list-icon">☰</text>
+          <text class="list-text">列表</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>
+
+<!-- 演唱列表弹窗 -->
+<view class="list-modal {{showList ? 'show' : ''}}" bindtap="hideList">
+  <view class="list-modal-content" catchtap="true">
+    <view class="list-modal-header">
+      <view class="list-title">歌曲列表</view>
+      <view class="close-btn" bindtap="hideList">✕</view>
+    </view>
+
+    <scroll-view class="list-scroll" scroll-y type="list">
+      <view wx:for="{{singingList}}" wx:key="id"
+            class="list-item {{index === currentIndex ? 'current' : ''}}"
+            data-index="{{index}}"
+            bindtap="selectSong">
+        <view class="item-index">{{index + 1}}</view>
+        <view class="item-info">
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-artist">{{item.artist}}</view>
+        </view>
+        <view wx:if="{{index === currentIndex}}" class="item-status">演唱中</view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

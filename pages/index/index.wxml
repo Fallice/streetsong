@@ -1,0 +1,78 @@
+<navigation-bar title="" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+
+<!-- 内容区 -->
+<scroll-view class="content" scroll-y>
+  <view class="container">
+    <!-- 顶部标签栏 -->
+    <view class="tabs">
+      <view class="tab {{playlistTab === 'street' ? 'active' : ''}}"
+            bindtap="switchPlaylistTab"
+            data-tab="street">
+        街唱歌单
+      </view>
+      <view class="tab {{playlistTab === 'mine' ? 'active' : ''}}"
+            bindtap="switchPlaylistTab"
+            data-tab="mine">
+        我的歌单
+      </view>
+    </view>
+
+    <!-- 街唱歌单内容 -->
+    <view wx:if="{{playlistTab === 'street'}}">
+      <!-- 扫一扫入口 -->
+      <view class="scan-entry card" bindtap="scanCode">
+        <view class="scan-icon">📱</view>
+        <view class="scan-text">扫一扫</view>
+        <view class="arrow">></view>
+      </view>
+
+      <view class="scan-hint">
+        <text>扫描歌手二维码查看演出歌单</text>
+      </view>
+    </view>
+
+    <!-- 我的歌单内容 -->
+    <view wx:if="{{playlistTab === 'mine'}}">
+      <!-- 未登录提示 -->
+      <view wx:if="{{!userInfo}}" class="empty-state">
+        <view class="empty-text">登录后可创建和管理歌单</view>
+        <button class="create-btn" bindtap="goToProfile">
+          前往登录
+        </button>
+      </view>
+
+      <!-- 已登录但无歌单 -->
+      <view wx:elif="{{myPlaylists.length === 0}}" class="empty-state">
+        <view class="create-text">创建我的街唱歌单</view>
+        <button class="create-btn" bindtap="createPlaylist">
+          创建歌单
+        </button>
+      </view>
+
+      <!-- 歌单列表 -->
+      <view wx:else class="playlist-list">
+        <view wx:for="{{myPlaylists}}" wx:key="id" class="playlist-card">
+          <view class="playlist-content" bindtap="viewPlaylistDetail" data-playlist-id="{{item.id}}">
+            <view class="playlist-name">{{item.name}}</view>
+            <view class="song-count">共{{item.songs.length}}首歌</view>
+          </view>
+          <view class="playlist-actions">
+            <view class="qr-btn" catchtap="showPlaylistQR" data-playlist-id="{{item.id}}" data-playlist-name="{{item.name}}">
+              <image class="qr-icon" src="/images/qr-code.png" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>
+
+<!-- 底部大椭圆按钮 -->
+<view class="bottom-tabs">
+  <view class="bottom-tab active">
+    歌单
+  </view>
+  <view class="bottom-tab" bindtap="goToProfile">
+    我的
+  </view>
+</view>

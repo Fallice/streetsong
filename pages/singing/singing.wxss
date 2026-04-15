@@ -1,0 +1,397 @@
+/* 演唱页面 - 温暖音乐现场主题 */
+page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #FAF7F2;
+}
+
+.scrollarea {
+  flex: 1;
+}
+
+.container {
+  padding: 32rpx;
+  padding-bottom: 60rpx;
+}
+
+/* ===== 结束演唱按钮 ===== */
+.header {
+  margin-bottom: 40rpx;
+}
+
+.end-btn {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  width: fit-content;
+}
+
+.end-icon-wrapper {
+  width: 56rpx;
+  height: 56rpx;
+  background: #F5F0E8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.end-btn:active .end-icon-wrapper {
+  background: #E8C9A0;
+}
+
+.end-icon {
+  font-size: 28rpx;
+  color: #8B7D6B;
+}
+
+.end-text {
+  font-size: 30rpx;
+  color: #8B7D6B;
+}
+
+/* ===== 演唱统计 ===== */
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 32rpx;
+  padding: 0 8rpx;
+}
+
+.stat-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.stat-label {
+  font-size: 28rpx;
+  color: #8B7D6B;
+}
+
+.stat-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #D4A574;
+}
+
+.stat-unit {
+  font-size: 24rpx;
+  color: #8B7D6B;
+}
+
+/* ===== 当前演唱卡片 ===== */
+.current-card {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  border-radius: 32rpx;
+  padding: 48rpx;
+  margin-bottom: 48rpx;
+  box-shadow:
+    0 8rpx 32rpx rgba(212, 165, 116, 0.12),
+    0 2rpx 8rpx rgba(44, 36, 25, 0.06);
+}
+
+.song-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-bottom: 40rpx;
+}
+
+.song-name {
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #2C2419;
+  line-height: 1.3;
+}
+
+.song-artist {
+  font-size: 32rpx;
+  color: #8B7D6B;
+}
+
+/* ===== 留言区域 ===== */
+.message-section {
+  margin-top: 32rpx;
+  padding-top: 32rpx;
+  border-top: 2rpx solid #F0EBE3;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.user-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8C9A0 0%, #D4A574 100%);
+  margin-right: 16rpx;
+}
+
+.user-name {
+  font-size: 28rpx;
+  color: #5C5143;
+  font-weight: 500;
+}
+
+.message-box {
+  background: #FAF7F2;
+  border-radius: 16rpx;
+  padding: 28rpx 32rpx;
+}
+
+.message-label {
+  font-size: 22rpx;
+  color: #B5A99A;
+  margin-bottom: 8rpx;
+}
+
+.message-text {
+  font-size: 30rpx;
+  color: #5C5143;
+  line-height: 1.5;
+}
+
+/* ===== 下一首按钮 ===== */
+.next-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 48rpx;
+}
+
+.next-btn {
+  width: 400rpx;
+  height: 400rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 12rpx 40rpx rgba(212, 165, 116, 0.4),
+    0 4rpx 12rpx rgba(212, 165, 116, 0.2);
+  transition: all 0.3s ease;
+}
+
+.next-btn:active {
+  transform: scale(0.98);
+  box-shadow:
+    0 6rpx 24rpx rgba(212, 165, 116, 0.3),
+    0 2rpx 6rpx rgba(212, 165, 116, 0.15);
+}
+
+.next-text {
+  font-size: 64rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+/* ===== 剩余歌曲 ===== */
+.remaining {
+  margin-bottom: 32rpx;
+  text-align: center;
+}
+
+.remaining-text {
+  font-size: 28rpx;
+  color: #8B7D6B;
+}
+
+.remaining-count {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #D4A574;
+}
+
+/* ===== 下一首歌曲 ===== */
+.next-song-section {
+  margin-bottom: 40rpx;
+}
+
+.next-label {
+  font-size: 24rpx;
+  color: #B5A99A;
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+}
+
+.next-song-card {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  border-radius: 24rpx;
+  padding: 28rpx 32rpx;
+  box-shadow:
+    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
+    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
+}
+
+.next-song-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.next-song-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2C2419;
+}
+
+.next-song-artist {
+  font-size: 26rpx;
+  color: #8B7D6B;
+}
+
+.list-btn {
+  width: 100rpx;
+  height: 100rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #F5F0E8;
+  border-radius: 20rpx;
+  transition: all 0.2s ease;
+}
+
+.list-btn:active {
+  background: #E8C9A0;
+  transform: scale(0.95);
+}
+
+.list-icon {
+  font-size: 40rpx;
+  color: #8B7D6B;
+  line-height: 1;
+  margin-bottom: 4rpx;
+}
+
+.list-text {
+  font-size: 20rpx;
+  color: #8B7D6B;
+}
+
+/* ===== 列表弹窗 ===== */
+.list-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(44, 36, 25, 0.6);
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 1000;
+}
+
+.list-modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.list-modal-content {
+  width: 100%;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  border-radius: 32rpx 32rpx 0 0;
+  max-height: 70vh;
+  padding: 40rpx;
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
+}
+
+.list-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.list-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #2C2419;
+}
+
+.close-btn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #F5F0E8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #8B7D6B;
+  transition: all 0.2s ease;
+}
+
+.close-btn:active {
+  background: #E8C9A0;
+  color: #5C5143;
+}
+
+.list-scroll {
+  height: 400rpx;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 2rpx solid #F0EBE3;
+  transition: all 0.2s ease;
+}
+
+.list-item:active {
+  background: rgba(212, 165, 116, 0.05);
+}
+
+.list-item.current {
+  background: rgba(224, 122, 95, 0.08);
+  border-radius: 12rpx;
+  padding: 24rpx 16rpx;
+  margin: 0 -16rpx;
+}
+
+.item-index {
+  width: 48rpx;
+  font-size: 26rpx;
+  color: #B5A99A;
+  margin-right: 24rpx;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-size: 30rpx;
+  color: #2C2419;
+  margin-bottom: 8rpx;
+  font-weight: 500;
+}
+
+.item-artist {
+  font-size: 24rpx;
+  color: #8B7D6B;
+}
+
+.item-status {
+  font-size: 24rpx;
+  color: #E07A5F;
+  font-weight: 500;
+  padding: 6rpx 16rpx;
+  background: rgba(224, 122, 95, 0.1);
+  border-radius: 12rpx;
+}

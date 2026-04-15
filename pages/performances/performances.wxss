@@ -1,0 +1,205 @@
+/* 演出记录页面 - 温暖音乐现场主题 */
+page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #FAF7F2;
+}
+
+.scrollarea {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.container {
+  padding: 32rpx;
+  padding-bottom: 60rpx;
+}
+
+/* ===== 区块样式 ===== */
+.section {
+  margin-bottom: 48rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 24rpx;
+}
+
+.section-icon {
+  font-size: 32rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2C2419;
+}
+
+/* ===== 演出列表 ===== */
+.performance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.performance-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 28rpx 32rpx;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  border-radius: 20rpx;
+  box-shadow:
+    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
+    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
+  transition: all 0.3s ease;
+}
+
+.performance-card:active {
+  transform: translateY(2rpx);
+  box-shadow:
+    0 2rpx 12rpx rgba(212, 165, 116, 0.06),
+    0 1rpx 2rpx rgba(44, 36, 25, 0.02);
+}
+
+.performance-info {
+  flex: 1;
+  margin-right: 24rpx;
+}
+
+.performance-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2C2419;
+  margin-bottom: 12rpx;
+}
+
+.performance-time {
+  font-size: 24rpx;
+  color: #8B7D6B;
+  margin-bottom: 16rpx;
+}
+
+.performance-stats {
+  display: flex;
+  gap: 24rpx;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  color: #8B7D6B;
+}
+
+.stat-icon {
+  font-size: 24rpx;
+}
+
+.performance-status {
+  font-size: 22rpx;
+  font-weight: 500;
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.performance-status.ongoing {
+  background: rgba(212, 165, 116, 0.15);
+  color: #B88A5A;
+}
+
+.performance-status.ended {
+  background: rgba(139, 125, 107, 0.1);
+  color: #8B7D6B;
+}
+
+/* ===== 点歌记录 ===== */
+.point-record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.record-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24rpx 28rpx;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  border-radius: 16rpx;
+  box-shadow:
+    0 2rpx 12rpx rgba(212, 165, 116, 0.06),
+    0 1rpx 2rpx rgba(44, 36, 25, 0.02);
+}
+
+.record-info {
+  flex: 1;
+  margin-right: 24rpx;
+}
+
+.record-info .song-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #2C2419;
+  margin-bottom: 8rpx;
+}
+
+.record-info .song-artist {
+  font-size: 24rpx;
+  color: #8B7D6B;
+  margin-bottom: 8rpx;
+}
+
+.record-time {
+  font-size: 22rpx;
+  color: #B5A99A;
+}
+
+.record-status {
+  font-size: 22rpx;
+  font-weight: 500;
+  padding: 6rpx 14rpx;
+  border-radius: 10rpx;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.record-status.pending {
+  background: rgba(212, 165, 116, 0.15);
+  color: #B88A5A;
+}
+
+.record-status.sung {
+  background: rgba(125, 155, 118, 0.15);
+  color: #7D9B76;
+}
+
+.record-status.canceled {
+  background: rgba(139, 125, 107, 0.1);
+  color: #8B7D6B;
+}
+
+/* ===== 空状态 ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 64rpx;
+  margin-bottom: 16rpx;
+  opacity: 0.4;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #8B7D6B;
+}

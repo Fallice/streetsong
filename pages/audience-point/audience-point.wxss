@@ -1,0 +1,351 @@
+/* 观众扫码点歌页面 - 温暖音乐现场主题 */
+page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #FAF7F2;
+}
+
+.scrollarea {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.container {
+  padding: 32rpx;
+  padding-bottom: 200rpx;
+}
+
+/* ===== 通用标题 ===== */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2C2419;
+  margin-bottom: 24rpx;
+}
+
+.title-icon {
+  font-size: 32rpx;
+}
+
+/* ===== 正在演唱 ===== */
+.current-section {
+  margin-bottom: 40rpx;
+}
+
+.current-song-card {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  background: linear-gradient(135deg, rgba(224, 122, 95, 0.1) 0%, rgba(201, 106, 82, 0.05) 100%);
+  border-radius: 24rpx;
+  border: 2rpx solid rgba(224, 122, 95, 0.2);
+}
+
+.playing-badge {
+  padding: 8rpx 20rpx;
+  background: linear-gradient(135deg, #E07A5F 0%, #C96A52 100%);
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 500;
+  border-radius: 20rpx;
+}
+
+/* ===== 下一首 ===== */
+.next-section {
+  margin-bottom: 40rpx;
+}
+
+.next-song-card {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  border-radius: 20rpx;
+  box-shadow:
+    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
+    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
+}
+
+/* ===== 歌曲列表 ===== */
+.song-list-section {
+  margin-bottom: 40rpx;
+}
+
+.song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.song-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  border-radius: 16rpx;
+  box-shadow:
+    0 2rpx 12rpx rgba(212, 165, 116, 0.06),
+    0 1rpx 2rpx rgba(44, 36, 25, 0.02);
+  transition: all 0.2s ease;
+}
+
+.song-item.liked {
+  background: linear-gradient(180deg, rgba(224, 122, 95, 0.08) 0%, rgba(255, 252, 248, 1) 100%);
+  border: 2rpx solid rgba(224, 122, 95, 0.15);
+}
+
+.song-index {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8C9A0 0%, #D4A574 100%);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.song-index.playing {
+  background: linear-gradient(135deg, #E07A5F 0%, #C96A52 100%);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.song-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.song-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #2C2419;
+}
+
+.song-artist {
+  font-size: 26rpx;
+  color: #8B7D6B;
+}
+
+.like-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  margin-left: 16rpx;
+  padding: 8rpx;
+}
+
+.like-icon {
+  font-size: 40rpx;
+  line-height: 1;
+  transition: all 0.3s;
+}
+
+.like-icon.liked {
+  transform: scale(1.1);
+}
+
+.like-count {
+  font-size: 24rpx;
+  color: #8B7D6B;
+}
+
+.like-count.liked {
+  color: #E07A5F;
+  font-weight: 500;
+}
+
+/* ===== 点歌按钮 ===== */
+.point-btn-container {
+  position: fixed;
+  bottom: 40rpx;
+  left: 40rpx;
+  right: 40rpx;
+  z-index: 100;
+}
+
+.point-btn {
+  width: 100%;
+  height: 100rpx;
+  background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  color: #FFFFFF;
+  border-radius: 50rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4rpx 20rpx rgba(212, 165, 116, 0.4);
+  transition: all 0.3s ease;
+}
+
+.point-btn::after {
+  border: none;
+}
+
+.point-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 12rpx rgba(212, 165, 116, 0.3);
+}
+
+.point-btn.disabled {
+  background: #E8E0D4;
+  color: #B5A99A;
+  box-shadow: none;
+}
+
+/* ===== 扫码区域 ===== */
+.scan-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+}
+
+.scan-content,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 60rpx;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  border-radius: 32rpx;
+  box-shadow:
+    0 8rpx 32rpx rgba(212, 165, 116, 0.12),
+    0 2rpx 8rpx rgba(44, 36, 25, 0.06);
+  width: 100%;
+  max-width: 560rpx;
+}
+
+.scan-icon-wrapper {
+  margin-bottom: 40rpx;
+}
+
+.scan-icon-bg {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8C9A0 0%, #D4A574 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(212, 165, 116, 0.4);
+}
+
+.scan-icon {
+  font-size: 80rpx;
+}
+
+.scan-text {
+  font-size: 38rpx;
+  font-weight: 600;
+  color: #2C2419;
+  margin-bottom: 16rpx;
+}
+
+.scan-hint {
+  font-size: 26rpx;
+  color: #8B7D6B;
+  margin-bottom: 48rpx;
+}
+
+/* ===== 错误状态 ===== */
+.error-icon {
+  font-size: 80rpx;
+  margin-bottom: 32rpx;
+}
+
+.error-message {
+  font-size: 30rpx;
+  color: #5C5143;
+  margin-bottom: 40rpx;
+}
+
+/* ===== 空状态 ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 34rpx;
+  color: #2C2419;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+.empty-desc {
+  font-size: 28rpx;
+  color: #8B7D6B;
+}
+
+/* ===== 按钮样式 ===== */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  outline: none;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-large {
+  height: 112rpx;
+  font-size: 36rpx;
+}
+
+.btn-medium {
+  height: 88rpx;
+  font-size: 32rpx;
+  padding: 0 48rpx;
+}
+
+.btn-small {
+  height: 72rpx;
+  font-size: 28rpx;
+  padding: 0 40rpx;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 16rpx rgba(212, 165, 116, 0.4);
+}
+
+.btn-primary:active {
+  box-shadow: 0 2rpx 8rpx rgba(212, 165, 116, 0.3);
+}

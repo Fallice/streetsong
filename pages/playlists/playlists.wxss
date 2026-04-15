@@ -1,0 +1,223 @@
+/* 我的歌单页面 - 温暖音乐现场主题 */
+page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #FAF7F2;
+}
+
+.scrollarea {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.container {
+  padding: 32rpx;
+  padding-bottom: 180rpx;
+}
+
+/* ===== 空状态 ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 40rpx;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  border-radius: 24rpx;
+  box-shadow:
+    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
+    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
+  margin-top: 40rpx;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.7;
+}
+
+.empty-text {
+  font-size: 34rpx;
+  color: #2C2419;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+.empty-desc {
+  font-size: 28rpx;
+  color: #8B7D6B;
+  margin-bottom: 40rpx;
+}
+
+/* ===== 创建按钮 ===== */
+.create-btn {
+  width: 280rpx;
+  height: 88rpx;
+  background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  color: #FFFFFF;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 4rpx 16rpx rgba(212, 165, 116, 0.4);
+  transition: all 0.3s ease;
+}
+
+.create-btn::after {
+  border: none;
+}
+
+.create-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(212, 165, 116, 0.3);
+}
+
+.btn-icon {
+  font-size: 36rpx;
+  margin-right: 12rpx;
+  font-weight: 300;
+}
+
+/* ===== 歌单列表 ===== */
+.playlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.playlist-card {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 20rpx 20rpx 32rpx;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  border-radius: 24rpx;
+  box-shadow:
+    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
+    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
+  transition: all 0.3s ease;
+}
+
+.playlist-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 8rpx 0;
+}
+
+.playlist-card:active {
+  transform: translateY(2rpx);
+  box-shadow:
+    0 2rpx 12rpx rgba(212, 165, 116, 0.06),
+    0 1rpx 2rpx rgba(44, 36, 25, 0.02);
+}
+
+/* 歌单封面 */
+.playlist-cover {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(135deg, #E8C9A0 0%, #D4A574 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 12rpx rgba(212, 165, 116, 0.3);
+}
+
+.cover-icon {
+  font-size: 44rpx;
+}
+
+/* 歌单内容 */
+.playlist-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.playlist-name {
+  font-size: 32rpx;
+  color: #2C2419;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.song-count {
+  font-size: 26rpx;
+  color: #8B7D6B;
+}
+
+/* 箭头 */
+.arrow {
+  margin-left: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow-icon {
+  font-size: 40rpx;
+  color: #B5A99A;
+  font-weight: 300;
+  transition: transform 0.2s ease;
+}
+
+.playlist-card:active .arrow-icon {
+  transform: translateX(4rpx);
+  color: #D4A574;
+}
+
+/* 歌单操作按钮 */
+.playlist-actions {
+  display: flex;
+  align-items: center;
+  margin-left: 16rpx;
+  padding-left: 16rpx;
+  border-left: 2rpx solid #F0EBE3;
+}
+
+.action-btn {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #E8C9A0 0%, #D4A574 100%);
+  border-radius: 16rpx;
+  transition: all 0.2s ease;
+  box-shadow: 0 4rpx 12rpx rgba(212, 165, 116, 0.3);
+}
+
+.action-btn:active {
+  background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(212, 165, 116, 0.2);
+}
+
+.qr-btn .action-icon {
+  font-size: 36rpx;
+  line-height: 1;
+}
+
+/* ===== 底部按钮区域 ===== */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32rpx 48rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent 0%, #FAF7F2 30%);
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+}
+
+.footer .create-btn {
+  width: 100%;
+  max-width: 600rpx;
+}

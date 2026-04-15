@@ -1,0 +1,54 @@
+<!--pages/profile/profile.wxml-->
+<navigation-bar title="我的" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+
+<view class="container">
+  <!-- 未登录状态 - 显示登录/注册按钮 -->
+  <block wx:if="{{!isLoggedIn}}">
+    <view class="not-login-page">
+      <view class="app-icon">🎤</view>
+      <text class="app-name">街唱</text>
+      <text class="app-slogan">扫码点歌，随时演唱</text>
+
+      <button class="login-btn" bindtap="goToLogin">
+        登录/注册
+      </button>
+    </view>
+  </block>
+
+  <!-- 已登录状态 - 用户信息 -->
+  <block wx:else>
+    <view class="user-card card">
+      <image
+        class="user-avatar"
+        src="{{userInfo.avatarUrl}}"
+        mode="aspectFill"
+        binderror="onAvatarError"
+      />
+      <view class="user-info-content">
+        <text class="user-nickname">{{userInfo.nickName || '微信用户'}}</text>
+        <text class="user-phone" wx:if="{{userInfo.phoneNumber}}">{{userInfo.phoneNumber}}</text>
+      </view>
+    </view>
+
+    <!-- 我的曲库 -->
+    <view class="menu-card card" bindtap="goToLibrary">
+      <text class="menu-text">我的曲库</text>
+      <text class="arrow">></text>
+    </view>
+
+    <!-- 退出登录 -->
+    <view class="logout-btn" bindtap="onLogout">
+      <text>退出登录</text>
+    </view>
+  </block>
+</view>
+
+<!-- 底部导航 -->
+<view class="bottom-tabs">
+  <view class="bottom-tab" bindtap="goToIndex">
+    <text>歌单</text>
+  </view>
+  <view class="bottom-tab active">
+    <text>我的</text>
+  </view>
+</view>

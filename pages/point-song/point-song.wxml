@@ -1,0 +1,87 @@
+<navigation-bar title="点歌" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<view class="container">
+  <!-- 搜索框 -->
+  <view class="search-section">
+    <view class="search-input-wrapper">
+      <text class="search-icon">🔍</text>
+      <input class="search-input"
+             placeholder="搜索歌曲"
+             value="{{searchText}}"
+             bindinput="onSearchInput"
+             bindconfirm="onSearchConfirm" />
+      <view wx:if="{{searchText}}" class="clear-btn" bindtap="clearSearch">
+        <text>✕</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 曲库信息 -->
+  <view class="library-info" wx:if="{{!searchText}}">
+    <view class="library-text">
+      <text class="library-icon">🎵</text>
+      <text>歌手曲库，共计 {{songLibrary.length}} 首</text>
+    </view>
+  </view>
+
+  <!-- 搜索结果信息 -->
+  <view class="search-result-info" wx:if="{{searchText}}">
+    <view class="search-text">查找到 {{filteredSongs.length}} 首歌曲</view>
+  </view>
+
+  <!-- 歌曲列表 -->
+  <view class="song-list">
+    <view wx:for="{{displaySongs}}" wx:key="id" class="song-item">
+      <view class="song-index">{{index + 1}}</view>
+      <view class="song-card">
+        <view class="song-info">
+          <view class="song-name">{{item.name}}</view>
+          <view class="song-artist">{{item.artist}}</view>
+        </view>
+        <view class="point-btn" bindtap="showPointModal" data-song="{{item}}">
+          <view class="point-icon-bg">
+            <text class="point-icon">+</text>
+          </view>
+          <view class="point-text">点歌</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{displaySongs.length === 0}}">
+    <view class="empty-icon">🎵</view>
+    <view class="empty-text">{{searchText ? '未找到匹配的歌曲' : '曲库为空'}}</view>
+  </view>
+</view>
+
+<!-- 点歌弹窗 -->
+<view class="modal {{showPointModal ? 'show' : ''}}" bindtap="hidePointModal">
+  <view class="modal-content" catchtap="true">
+    <view class="modal-header">
+      <view class="modal-title">点歌</view>
+      <view class="close-btn" bindtap="hidePointModal">✕</view>
+    </view>
+
+    <view class="song-info-modal">
+      <view class="song-name">{{selectedSong.name}}</view>
+      <view class="song-artist">{{selectedSong.artist}}</view>
+    </view>
+
+    <view class="message-section">
+      <view class="message-label">点歌寄语</view>
+      <textarea class="message-input"
+                placeholder="写下你想说的话（可选）"
+                value="{{pointMessage}}"
+                bindinput="onMessageInput"
+                maxlength="50" />
+      <view class="message-count">{{pointMessage.length}}/50</view>
+    </view>
+
+    <view class="modal-footer">
+      <button class="point-btn-modal" bindtap="confirmPointSong">
+        确认点歌
+      </button>
+    </view>
+  </view>
+</view>
