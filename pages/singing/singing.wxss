@@ -104,6 +104,23 @@ page {
   margin-bottom: 40rpx;
 }
 
+/* 点赞数展示 */
+.like-count-section {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 8rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #E07A5F;
+}
+
+.like-count-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #E07A5F;
+}
+
 .song-name {
   font-size: 52rpx;
   font-weight: 700;
@@ -252,6 +269,23 @@ page {
 .next-song-artist {
   font-size: 26rpx;
   color: #8B7D6B;
+}
+
+/* 下一首歌曲的点赞数样式 */
+.next-song-like-section {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #E07A5F;
+}
+
+.next-song-like-count {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #E07A5F;
 }
 
 .list-btn {
@@ -403,6 +437,26 @@ page {
 .item-artist {
   font-size: 22rpx; /* 稍微缩小字体 */
   color: #8B7D6B;
+}
+
+/* 歌曲列表中的点赞数样式 */
+.item-like-section {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  margin-right: 12rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #B5A99A;
+}
+
+.item-like-section.has-likes {
+  color: #E07A5F;
+}
+
+.item-like-count {
+  font-size: 22rpx;
+  font-weight: 500;
 }
 
 .item-status {

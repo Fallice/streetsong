@@ -29,6 +29,11 @@
     <view class="song-header">
       <view class="song-name">{{currentSong ? currentSong.name : '暂无歌曲'}}</view>
       <view class="song-artist">{{currentSong ? currentSong.artist : ''}}</view>
+      <!-- 点赞数展示 -->
+      <view class="like-count-section" wx:if="{{currentSong}}">
+        <icon name="heart" size="36rpx" color="#E07A5F" />
+        <text class="like-count-text">{{currentSong.priority || 0}}</text>
+      </view>
     </view>
 
     <view class="message-section" wx:if="{{currentSong && currentSong.message}}">
@@ -62,6 +67,11 @@
       <view class="next-song-info">
         <view class="next-song-name">{{nextSong.name}}</view>
         <view class="next-song-artist">{{nextSong.artist}}</view>
+        <!-- 点赞数展示 -->
+        <view class="next-song-like-section" wx:if="{{nextSong.priority > 0}}">
+          <icon name="heart" size="24rpx" color="#E07A5F" />
+          <text class="next-song-like-count">{{nextSong.priority}}</text>
+        </view>
       </view>
       <view class="list-btn" bindtap="showList">
         <icon name="list" size="40rpx" color="#8B7D6B" />
@@ -88,6 +98,11 @@
         <view class="item-info">
           <view class="item-name">{{item.name}}</view>
           <view class="item-artist">{{item.artist}}</view>
+        </view>
+        <!-- 点赞数展示 -->
+        <view class="item-like-section {{item.priority > 0 ? 'has-likes' : ''}}">
+          <icon name="heart" size="28rpx" color="{{item.priority > 0 ? '#E07A5F' : '#B5A99A'}}" />
+          <text class="item-like-count">{{item.priority || 0}}</text>
         </view>
         <view wx:if="{{index === currentIndex}}" class="item-status">演唱中</view>
       </view>

@@ -266,7 +266,12 @@ Page({
 
   // 显示列表
   showList() {
+    // 更新演唱列表数据，确保点赞数是最新的
+    const currentPerformance = data.getCurrentPerformance()
+    const singingList = currentPerformance ? currentPerformance.singingList || [] : []
+
     this.setData({
+      singingList: singingList,
       showList: true
     })
   },
