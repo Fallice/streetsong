@@ -362,11 +362,6 @@ page {
   margin-bottom: 0;
 }
 
-.list-item:active {
-  transform: scale(0.98);
-  box-shadow: 0 2rpx 8rpx rgba(44, 36, 25, 0.04);
-}
-
 .list-item.current {
   background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
   border: 2rpx solid rgba(224, 122, 95, 0.2);

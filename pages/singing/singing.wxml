@@ -83,9 +83,7 @@
 
     <scroll-view class="list-scroll" scroll-y type="list">
       <view wx:for="{{singingList}}" wx:key="id"
-            class="list-item {{index === currentIndex ? 'current' : ''}}"
-            data-index="{{index}}"
-            bindtap="selectSong">
+            class="list-item {{index === currentIndex ? 'current' : ''}}">
         <view class="item-index">{{index + 1}}</view>
         <view class="item-info">
           <view class="item-name">{{item.name}}</view>

@@ -278,24 +278,6 @@ Page({
     })
   },
 
-  // 选择歌曲
-  selectSong(e) {
-    const { index } = e.currentTarget.dataset
-    // 计算新的已演唱数量：如果跳到前面，已演唱数量不减少
-    const newSungCount = index > this.data.currentIndex ? this.data.sungCount + (index - this.data.currentIndex) : this.data.sungCount
-
-    this.setData({
-      currentIndex: index,
-      sungCount: newSungCount,
-      showList: false
-    })
-
-    // 保存演唱进度
-    data.updatePerformanceProgress(index, newSungCount)
-
-    this.updateCurrentSong()
-  },
-
   // 结束演唱
   async endSinging() {
     const confirm = await util.showModal('结束演唱', '确定要结束演唱吗？')
