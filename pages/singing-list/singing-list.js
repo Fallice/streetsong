@@ -19,7 +19,7 @@ Page({
     singerId: '',
     singerName: '',
     isLoading: true,
-    isScrollable: false // 是否需要滚动
+    isScrollable: true // 是否需要滚动，默认为true
   },
 
   onLoad(options) {
@@ -391,30 +391,9 @@ Page({
 
   // 检查并设置滚动状态
   checkScrollStatus() {
-    // 计算页面内容高度和屏幕高度
-    const query = wx.createSelectorQuery()
-    query.select('.page-container').boundingClientRect()
-    query.selectViewport().scrollOffset()
-    query.exec((res) => {
-      if (res[0]) {
-        // 页面内容高度
-        const pageHeight = res[0].height
-        // 屏幕高度（包含导航栏）
-        const systemInfo = wx.getSystemInfoSync()
-        const screenHeight = systemInfo.screenHeight
-
-        // 如果页面内容高度大于屏幕高度，启用滚动
-        const isScrollable = pageHeight > screenHeight
-        if (isScrollable) {
-          this.setData({
-            isScrollable: true
-          })
-        } else {
-          this.setData({
-            isScrollable: false
-          })
-        }
-      }
+    // 直接设置为可以滚动，确保内容多时支持滚动
+    this.setData({
+      isScrollable: true
     })
   },
 

@@ -31,10 +31,6 @@ page {
 /* 可滚动区域 */
 .scrollable-section {
   flex: 1;
-  overflow-y: hidden;
-}
-
-.scrollable-section.scrollable {
   overflow-y: auto;
 }
 

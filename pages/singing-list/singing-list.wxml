@@ -75,7 +75,7 @@
   </view>
 
   <!-- 可滚动区域：歌曲列表 -->
-  <scroll-view class="scrollable-section {{isScrollable ? 'scrollable' : ''}}" scroll-y="{{isScrollable}}" type="list" scroll-with-animation="{{true}}" enable-flex="{{true}}">
+  <scroll-view class="scrollable-section scrollable" scroll-y="{{true}}" type="list" scroll-with-animation="{{true}}" enable-flex="{{true}}">
     <view class="container">
       <block wx:if="{{hasPerformance}}">
         <!-- 歌曲列表 -->
