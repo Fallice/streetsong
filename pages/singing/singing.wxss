@@ -454,7 +454,8 @@ page {
   display: flex;
   align-items: center;
   gap: 6rpx;
-  margin-right: 8rpx;
+  margin-right: 16rpx;
+  margin-left: 16rpx;
   font-size: 22rpx;
   font-weight: 500;
   color: #B5A99A;
