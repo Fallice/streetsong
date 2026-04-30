@@ -429,7 +429,7 @@ Page({
 
   // 爱心点赞
   likeSong(e) {
-    const { index, songId } = e.currentTarget.dataset
+    const { songId } = e.currentTarget.dataset
 
     // 检查是否正在演出
     if (!this.data.hasPerformance) {
@@ -446,33 +446,36 @@ Page({
 
     // 更新爱心数
     const singingList = [...this.data.singingList]
-    const song = singingList[index]
-    song.priority = (song.priority || 0) + 1
+    // 直接通过 songId 找到对应的歌曲，而不是依赖 index
+    const song = singingList.find(s => s.id === songId)
+    if (song) {
+      song.priority = (song.priority || 0) + 1
 
-    // 重新排序（保持前两首不变，后面的按爱心数排序，相同爱心数按添加时间）
-    const firstTwo = singingList.slice(0, 2)
-    const rest = singingList.slice(2).sort((a, b) => {
-      if (b.priority !== a.priority) {
-        return b.priority - a.priority
-      }
-      return a.addTime - b.addTime
-    })
+      // 重新排序（保持前两首不变，后面的按爱心数排序，相同爱心数按添加时间）
+      const firstTwo = singingList.slice(0, 2)
+      const rest = singingList.slice(2).sort((a, b) => {
+        if (b.priority !== a.priority) {
+          return b.priority - a.priority
+        }
+        return a.addTime - b.addTime
+      })
 
-    const newList = [...firstTwo, ...rest]
+      const newList = [...firstTwo, ...rest]
 
-    // 更新演出的演唱列表
-    data.updatePerformanceSingingList(newList)
+      // 更新演出的演唱列表
+      data.updatePerformanceSingingList(newList)
 
-    // 记录用户点赞
-    userLikes[songId] = true
-    // 存储到本地存储
-    wx.setStorageSync('userLikes', userLikes)
-    this.setData({
-      singingList: newList,
-      userLikes
-    })
+      // 记录用户点赞
+      userLikes[songId] = true
+      // 存储到本地存储
+      wx.setStorageSync('userLikes', userLikes)
+      this.setData({
+        singingList: newList,
+        userLikes: { ...userLikes } // 使用展开运算符确保触发更新
+      })
 
-    util.showToast('支持成功！')
+      util.showToast('支持成功！')
+    }
   },
 
   // 跳转到点歌页面
