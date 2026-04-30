@@ -123,7 +123,7 @@ Page({
 
       wx.hideLoading()
 
-      // 检查演出状态
+      // 检查演出状态 - 确保获取最新数据
       this.checkPerformanceStatus()
     } catch (error) {
       console.error('初始化页面失败:', error)
@@ -215,6 +215,7 @@ Page({
     if (hasOngoingPerformance) {
       // 演出进行中
       const singingList = performance.singingList || []
+      const currentIndex = performance.currentIndex || 0
 
       // 检查是否是新的演出（与之前不同的演出ID）
       const previousPerformanceId = wx.getStorageSync('previousPerformanceId')
@@ -240,12 +241,17 @@ Page({
         })
       }
 
+      // 根据当前演唱索引计算当前歌曲和下一首歌曲
+      const currentSong = singingList[currentIndex] || null
+      const nextSong = (currentIndex + 1 < singingList.length) ? singingList[currentIndex + 1] : null
+
       this.setData({
         hasPerformance: true,
         performance: performance,
         singingList: singingList,
-        currentSong: singingList[0] || null,
-        nextSong: singingList[1] || null,
+        currentIndex: currentIndex,
+        currentSong: currentSong,
+        nextSong: nextSong,
         singerId: performance.singerId || this.data.singerId,
         singerName: performance.singerName || this.data.singerName
       })
@@ -315,35 +321,83 @@ Page({
   refreshSingingList() {
     const { hasPerformance, performance } = this.data
 
-    if (hasPerformance && performance) {
-      // 获取最新的演出数据
-      const currentPerformance = data.getCurrentPerformance()
+    // 无论当前是否显示演出状态，都要检查最新的演出数据
+    const currentPerformance = data.getCurrentPerformance()
+    const isOngoing = currentPerformance &&
+                       currentPerformance.status === 'ongoing' &&
+                       currentPerformance.playlistId === this.data.playlistId
 
-      if (currentPerformance && currentPerformance.id === performance.id) {
+    // 如果演出状态发生变化，立即更新
+    if (isOngoing !== hasPerformance) {
+      this.checkPerformanceStatus()
+      return
+    }
+
+    if (isOngoing && currentPerformance) {
+      // 检查演出ID是否匹配
+      if (performance && currentPerformance.id === performance.id) {
         const singingList = currentPerformance.singingList || []
-        if (singingList.length !== this.data.singingList.length) {
+        const currentIndex = currentPerformance.currentIndex || 0
+
+        // 检查是否有变化：不仅检查长度和索引，还检查歌曲内容是否变化
+        const hasChanged = this.hasSingingListChanged(singingList, currentIndex)
+
+        if (hasChanged) {
+          // 根据当前演唱索引计算当前歌曲和下一首歌曲
+          const currentSong = singingList[currentIndex] || null
+          const nextSong = (currentIndex + 1 < singingList.length) ? singingList[currentIndex + 1] : null
+
           this.setData({
             singingList: singingList,
-            currentSong: singingList[0] || null,
-            nextSong: singingList[1] || null
+            currentIndex: currentIndex,
+            currentSong: currentSong,
+            nextSong: nextSong
           })
         }
-      } else {
-        // 演出已结束
-        this.setData({
-          hasPerformance: false,
-          performance: null,
-          singingList: [],
-          currentSong: null,
-          nextSong: null
-        })
+      } else if (isOngoing) {
+        // 如果演出ID不匹配，重新检查演出状态
+        this.checkPerformanceStatus()
+      }
+    } else if (hasPerformance) {
+      // 演出已结束，更新状态
+      this.setData({
+        hasPerformance: false,
+        performance: null,
+        singingList: [],
+        currentSong: null,
+        nextSong: null
+      })
+    }
+  },
 
-        wx.showToast({
-          title: '演出已结束',
-          icon: 'none'
-        })
+  // 检查演唱列表是否发生变化
+  hasSingingListChanged(newSingingList, newIndex) {
+    const { singingList, currentIndex } = this.data
+
+    // 如果索引不同，肯定变化了
+    if (newIndex !== currentIndex) {
+      return true
+    }
+
+    // 如果长度不同，肯定变化了
+    if (newSingingList.length !== singingList.length) {
+      return true
+    }
+
+    // 逐个检查歌曲是否相同
+    for (let i = 0; i < newSingingList.length; i++) {
+      const oldSong = singingList[i]
+      const newSong = newSingingList[i]
+
+      // 如果歌曲ID不同，或者优先级不同，或者留言不同，说明变化了
+      if (oldSong.id !== newSong.id ||
+          (oldSong.priority || 0) !== (newSong.priority || 0) ||
+          oldSong.message !== newSong.message) {
+        return true
       }
     }
+
+    return false
   },
 
   // 爱心点赞

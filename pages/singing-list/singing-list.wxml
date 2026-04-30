@@ -42,10 +42,10 @@
       <view class="section">
         <view class="section-title">正在演唱</view>
         <view class="current-song-card">
-          <view class="song-number current">1</view>
+          <view class="song-number current">{{currentIndex + 1}}</view>
           <view class="song-detail">
-            <view class="song-name large">{{singingList[0].name}}</view>
-            <view class="song-artist">{{singingList[0].artist}}</view>
+            <view class="song-name large">{{currentSong.name}}</view>
+            <view class="song-artist">{{currentSong.artist}}</view>
           </view>
           <view class="playing-indicator">
             <view class="wave"></view>
@@ -56,13 +56,13 @@
       </view>
 
       <!-- 下一首 -->
-      <view class="section" wx:if="{{singingList.length > 1}}">
+      <view class="section" wx:if="{{nextSong && currentIndex + 1 < singingList.length}}">
         <view class="section-title">下一首</view>
         <view class="next-song-card">
-          <view class="song-number next">2</view>
+          <view class="song-number next">{{currentIndex + 2}}</view>
           <view class="song-info-row">
-            <text class="song-name">{{singingList[1].name}}</text>
-            <text class="song-artist">{{singingList[1].artist}}</text>
+            <text class="song-name">{{nextSong.name}}</text>
+            <text class="song-artist">{{nextSong.artist}}</text>
           </view>
         </view>
       </view>
@@ -72,12 +72,12 @@
   <!-- 可滚动区域：歌曲列表 -->
   <scroll-view class="scrollable-section" scroll-y type="list">
     <view class="container">
-      <block wx:if="{{hasPerformance && singingList.length > 2}}">
+      <block wx:if="{{hasPerformance}}">
         <!-- 歌曲列表 -->
-        <view class="section">
+        <view class="section" wx:if="{{singingList.length > currentIndex + 2}}">
           <view class="section-title">歌曲列表</view>
           <view class="pending-list">
-            <view wx:for="{{singingList}}" wx:key="id" wx:if="{{index > 1}}" class="pending-item" data-index="{{index}}" data-song-id="{{item.id}}" bindtap="likeSong">
+            <view wx:for="{{singingList}}" wx:key="id" wx:if="{{index > currentIndex + 1}}" class="pending-item" data-index="{{index}}" data-song-id="{{item.id}}" bindtap="likeSong">
               <view class="song-number pending">{{index + 1}}</view>
               <view class="pending-card">
                 <view class="song-info-row">

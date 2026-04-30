@@ -237,6 +237,9 @@ Page({
 
     // 更新全局状态
     app.globalData.currentSong = currentSong
+    // 更新演出的演唱列表和当前索引，确保扫码点歌页面能同步
+    data.updatePerformanceSingingList(singingList)
+    data.updatePerformanceProgress(currentIndex, this.data.sungCount)
   },
 
   // 下一首

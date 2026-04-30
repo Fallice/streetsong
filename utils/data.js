@@ -418,6 +418,8 @@ const updatePerformanceProgress = (currentIndex, sungCount) => {
     performance.sungCount = sungCount
     try {
       wx.setStorageSync(STORAGE_KEYS.PERFORMANCE, performance)
+      // 同时更新全局演唱列表，确保同步
+      setSingingList(performance.singingList || [])
       return true
     } catch (error) {
       console.error('更新演唱进度失败:', error)
