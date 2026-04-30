@@ -105,20 +105,35 @@ page {
 }
 
 /* 点赞数展示 */
+.song-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.song-info-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
 .like-count-section {
   display: flex;
   align-items: center;
   gap: 8rpx;
-  margin-top: 8rpx;
   font-size: 28rpx;
   font-weight: 600;
-  color: #E07A5F;
+  color: #B5A99A;
+  flex-shrink: 0;
 }
 
 .like-count-text {
   font-size: 28rpx;
   font-weight: 600;
-  color: #E07A5F;
+  color: #B5A99A;
 }
 
 .song-name {
@@ -279,13 +294,13 @@ page {
   margin-top: 8rpx;
   font-size: 24rpx;
   font-weight: 500;
-  color: #E07A5F;
+  color: #B5A99A;
 }
 
 .next-song-like-count {
   font-size: 24rpx;
   font-weight: 500;
-  color: #E07A5F;
+  color: #B5A99A;
 }
 
 .list-btn {
@@ -444,19 +459,17 @@ page {
   display: flex;
   align-items: center;
   gap: 6rpx;
-  margin-right: 12rpx;
+  margin-right: 8rpx;
   font-size: 22rpx;
   font-weight: 500;
   color: #B5A99A;
-}
-
-.item-like-section.has-likes {
-  color: #E07A5F;
+  flex-shrink: 0;
 }
 
 .item-like-count {
   font-size: 22rpx;
   font-weight: 500;
+  color: #B5A99A;
 }
 
 .item-status {
