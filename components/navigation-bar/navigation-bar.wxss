@@ -15,6 +15,12 @@
   z-index: 999;
   display: block;
   width: 100%;
+  /* 防止页面初始化时的闪烁 */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* 开启硬件加速 */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .weui-navigation-bar__inner {
@@ -29,6 +35,13 @@
   padding-top: 0;
   width: 100%;
   box-sizing: border-box;
+  /* 防止页面初始化时的闪烁 */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  /* 避免在初始化时的重绘 */
+  will-change: auto;
 }
 
 .weui-navigation-bar__left {
