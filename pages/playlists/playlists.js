@@ -43,8 +43,23 @@ Page({
   // 获取歌单列表
   getPlaylists() {
     const playlists = data.getPlaylists()
+
+    // 获取当前演出信息
+    const currentPerformance = data.getCurrentPerformance()
+
+    // 为每个歌单标记是否正在演唱
+    const playlistsWithStatus = playlists.map(playlist => {
+      const isSinging = currentPerformance &&
+                        currentPerformance.status === 'ongoing' &&
+                        currentPerformance.playlistId === playlist.id
+      return {
+        ...playlist,
+        isSinging
+      }
+    })
+
     this.setData({
-      playlists
+      playlists: playlistsWithStatus
     })
   },
 
@@ -55,12 +70,24 @@ Page({
     })
   },
 
-  // 查看歌单详情
+  // 查看歌单详情（若正在演唱则进入演唱页面）
   viewPlaylistDetail(e) {
     const { playlistId } = e.currentTarget.dataset
-    wx.navigateTo({
-      url: `/pages/playlist-detail/playlist-detail?playlistId=${playlistId}`
-    })
+
+    // 查找对应的歌单
+    const playlist = this.data.playlists.find(p => p.id === playlistId)
+
+    if (playlist && playlist.isSinging) {
+      // 正在演唱中，进入演唱页面
+      wx.navigateTo({
+        url: `/pages/singing/singing?playlistId=${playlistId}`
+      })
+    } else {
+      // 未演唱，进入歌单详情
+      wx.navigateTo({
+        url: `/pages/playlist-detail/playlist-detail?playlistId=${playlistId}`
+      })
+    }
   },
 
   // 删除歌单

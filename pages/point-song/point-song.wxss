@@ -6,9 +6,13 @@ page {
   background: #FAF7F2;
 }
 
+.scrollarea {
+  flex: 1;
+  overflow-y: auto;
+}
+
 .container {
   padding: 32rpx;
-  flex: 1;
 }
 
 /* ===== 搜索框 ===== */
@@ -67,15 +71,9 @@ page {
 }
 
 .library-text {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  font-size: 28rpx;
-  color: #8B7D6B;
-}
-
-.library-icon {
-  font-size: 32rpx;
+  font-size: 30rpx;
+  color: #2C2419;
+  font-weight: 500;
 }
 
 .search-text {
@@ -92,8 +90,8 @@ page {
 
 .song-item {
   display: flex;
-  align-items: flex-start;
-  gap: 16rpx;
+  align-items: center;
+  gap: 20rpx;
 }
 
 .song-index {
@@ -108,7 +106,6 @@ page {
   font-size: 24rpx;
   font-weight: 600;
   flex-shrink: 0;
-  margin-top: 16rpx;
 }
 
 .song-card {
@@ -116,19 +113,15 @@ page {
   display: flex;
   align-items: center;
   padding: 24rpx 28rpx;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  background: #FFFFFF;
   border-radius: 20rpx;
-  box-shadow:
-    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
-    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
-  transition: all 0.3s ease;
+  box-shadow: 0 4rpx 16rpx rgba(44, 36, 25, 0.06);
+  transition: all 0.2s ease;
 }
 
 .song-card:active {
   transform: translateY(2rpx);
-  box-shadow:
-    0 2rpx 12rpx rgba(212, 165, 116, 0.06),
-    0 1rpx 2rpx rgba(44, 36, 25, 0.02);
+  box-shadow: 0 2rpx 8rpx rgba(44, 36, 25, 0.04);
 }
 
 .song-info {
@@ -136,12 +129,16 @@ page {
   display: flex;
   flex-direction: column;
   gap: 8rpx;
+  min-width: 0;
 }
 
 .song-name {
   font-size: 32rpx;
   color: #2C2419;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .song-artist {
@@ -149,7 +146,7 @@ page {
   color: #8B7D6B;
 }
 
-.point-btn {
+.point-btn-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -158,7 +155,7 @@ page {
   padding: 8rpx;
 }
 
-.point-icon-bg {
+.point-btn-circle {
   width: 56rpx;
   height: 56rpx;
   border-radius: 50%;
@@ -170,7 +167,7 @@ page {
   transition: all 0.2s ease;
 }
 
-.point-icon-bg:active {
+.point-btn-circle:active {
   transform: scale(0.95);
 }
 
@@ -192,13 +189,22 @@ page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 120rpx 40rpx;
+  padding: 160rpx 40rpx;
 }
 
-.empty-icon {
-  font-size: 100rpx;
-  margin-bottom: 24rpx;
-  opacity: 0.5;
+.empty-state .empty-icon {
+  margin-bottom: 32rpx;
+}
+
+.icon-bg {
+  width: 160rpx;
+  height: 160rpx;
+  background: linear-gradient(135deg, #F5F0E8 0%, #E8E0D4 100%);
+  border-radius: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72rpx;
 }
 
 .empty-text {
@@ -230,18 +236,17 @@ page {
 
 .modal-content {
   width: 640rpx;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  background: #FFFFFF;
   border-radius: 28rpx;
-  padding: 40rpx;
-  box-shadow:
-    0 20rpx 60rpx rgba(44, 36, 25, 0.2),
-    0 8rpx 24rpx rgba(212, 165, 116, 0.15);
+  padding: 48rpx;
+  box-shadow: 0 20rpx 60rpx rgba(44, 36, 25, 0.2);
 }
 
+/* 弹窗头部 */
 .modal-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 32rpx;
 }
 
@@ -251,7 +256,7 @@ page {
   color: #2C2419;
 }
 
-.close-btn {
+.modal-close {
   width: 56rpx;
   height: 56rpx;
   display: flex;
@@ -259,94 +264,91 @@ page {
   justify-content: center;
   background: #F5F0E8;
   border-radius: 50%;
-  font-size: 28rpx;
-  color: #8B7D6B;
   transition: all 0.2s ease;
 }
 
-.close-btn:active {
+.modal-close:active {
   background: #E8C9A0;
-  color: #5C5143;
 }
 
+/* 歌曲信息 */
 .song-info-modal {
-  margin-bottom: 32rpx;
-  padding: 24rpx;
-  background: rgba(212, 165, 116, 0.1);
-  border-radius: 16rpx;
+  margin-bottom: 40rpx;
 }
 
-.song-info-modal .song-name {
-  font-size: 36rpx;
+.song-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.song-name-modal {
+  font-size: 44rpx;
   font-weight: 600;
   color: #2C2419;
-  margin-bottom: 8rpx;
-  text-align: center;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.song-info-modal .song-artist {
+.song-artist-modal {
   font-size: 28rpx;
   color: #8B7D6B;
-  text-align: center;
+  flex-shrink: 0;
 }
 
-/* ===== 寄语输入 ===== */
+/* 留言输入 */
 .message-section {
-  margin-bottom: 32rpx;
+  margin-bottom: 48rpx;
 }
 
 .message-label {
-  font-size: 28rpx;
+  font-size: 30rpx;
+  color: #2C2419;
+  margin-bottom: 20rpx;
+  display: block;
   font-weight: 500;
-  color: #5C5143;
-  margin-bottom: 16rpx;
 }
 
 .message-input {
   width: 100%;
   height: 160rpx;
-  background: #F5F0E8;
+  background: #FFFFFF;
+  border: 2rpx solid #E8E0D4;
   border-radius: 16rpx;
   padding: 24rpx;
   font-size: 28rpx;
   color: #2C2419;
   box-sizing: border-box;
-  border: 2rpx solid transparent;
   transition: all 0.2s ease;
 }
 
 .message-input:focus {
   border-color: #D4A574;
-  background: #FFFFFF;
 }
 
 .message-input::placeholder {
   color: #B5A99A;
 }
 
-.message-count {
-  text-align: right;
-  font-size: 24rpx;
-  color: #B5A99A;
-  margin-top: 12rpx;
-}
-
-/* ===== 弹窗底部按钮 ===== */
+/* 点歌按钮 */
 .modal-footer {
   display: flex;
   justify-content: center;
 }
 
 .point-btn-modal {
-  width: 100%;
+  width: 400rpx;
   height: 88rpx;
-  background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  background: linear-gradient(135deg, #E07A5F 0%, #C96A52 100%);
   color: #FFFFFF;
   border-radius: 44rpx;
   font-size: 32rpx;
   font-weight: 500;
   border: none;
-  box-shadow: 0 4rpx 16rpx rgba(212, 165, 116, 0.4);
+  box-shadow: 0 4rpx 16rpx rgba(224, 122, 95, 0.4);
   transition: all 0.3s ease;
 }
 
@@ -356,5 +358,5 @@ page {
 
 .point-btn-modal:active {
   transform: scale(0.98);
-  box-shadow: 0 2rpx 8rpx rgba(212, 165, 116, 0.3);
+  box-shadow: 0 2rpx 8rpx rgba(224, 122, 95, 0.3);
 }

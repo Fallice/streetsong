@@ -1,14 +1,21 @@
-<!--pages/library/library.wxml-->
 <navigation-bar title="我的曲库" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
 
 <view class="container">
+  <!-- 加载状态 -->
+  <view wx:if="{{songs === null}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+
   <!-- 空状态 -->
-  <view wx:if="{{songs.length === 0}}" class="empty-state">
-    <view class="empty-icon">🎵</view>
+  <view wx:elif="{{songs.length === 0}}" class="empty-state">
+    <view class="empty-icon">
+      <icon name="music" size="80rpx" color="#D4A574" />
+    </view>
     <view class="empty-text">曲库还是空的</view>
     <view class="empty-desc">添加你喜欢的歌曲吧</view>
     <view class="add-btn" bindtap="goToAddSong">
-      <text class="btn-icon">+</text>
+      <icon name="plus" size="36rpx" color="#FFFFFF" />
       <text>添加歌曲</text>
     </view>
   </view>
@@ -26,10 +33,10 @@
 
         <view class="song-actions">
           <view class="action-btn sort-btn" bindtap="showSortOptions" data-index="{{index}}">
-            <text class="action-icon">⇅</text>
+            <icon name="sort" size="24rpx" color="#5C5143" />
           </view>
           <view class="action-btn more-btn" bindtap="showMoreOptions" data-id="{{item.id}}" data-index="{{index}}">
-            <text class="action-icon">⋯</text>
+            <icon name="more" size="24rpx" color="#5C5143" />
           </view>
         </view>
       </view>
@@ -38,20 +45,20 @@
 </view>
 
 <!-- 添加按钮（悬浮） -->
-<view wx:if="{{songs.length > 0}}" class="fab-add" bindtap="goToAddSong">
-  <text class="fab-icon">+</text>
+<view wx:if="{{songs && songs.length > 0}}" class="fab-add" bindtap="goToAddSong">
+  <icon name="plus" size="48rpx" color="#FFFFFF" />
 </view>
 
 <!-- 更多操作弹窗 -->
 <view wx:if="{{showActionSheet}}" class="action-sheet-mask" bindtap="hideActionSheet">
   <view class="action-sheet" catchtap="preventBubble">
     <view class="action-item" bindtap="editSong">
-      <text class="item-icon">✏️</text>
+      <icon name="edit" size="32rpx" color="#5C5143" />
       <text>修改</text>
     </view>
     <view class="divider"></view>
     <view class="action-item delete" bindtap="deleteSong">
-      <text class="item-icon">🗑️</text>
+      <icon name="delete" size="32rpx" color="#E07A5F" />
       <text>删除</text>
     </view>
   </view>

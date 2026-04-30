@@ -5,7 +5,7 @@ const app = getApp()
 Page({
   data: {
     userInfo: null,
-    songs: [],
+    songs: null, // 初始化为 null，避免先显示空状态
     showActionSheet: false,
     currentSongId: null,
     currentIndex: null
@@ -13,6 +13,7 @@ Page({
 
   onLoad() {
     this.getUserInfo()
+    this.getLibrarySongs()
   },
 
   onShow() {

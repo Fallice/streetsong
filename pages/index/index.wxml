@@ -1,73 +1,103 @@
-<navigation-bar title="" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<navigation-bar title="" back="{{false}}" color="black" background="#FFFFFF"></navigation-bar>
 
-<!-- 内容区 -->
-<scroll-view class="content" scroll-y>
-  <view class="container">
-    <!-- 顶部标签栏 -->
-    <view class="tabs">
-      <view class="tab {{playlistTab === 'street' ? 'active' : ''}}"
-            bindtap="switchPlaylistTab"
-            data-tab="street">
-        街唱歌单
-      </view>
-      <view class="tab {{playlistTab === 'mine' ? 'active' : ''}}"
-            bindtap="switchPlaylistTab"
-            data-tab="mine">
-        我的歌单
-      </view>
+<!-- 固定的顶部标签栏 -->
+<view class="tabs-header">
+  <view class="tabs">
+    <view class="tab {{playlistTab === 'street' ? 'active' : ''}}"
+          bindtap="switchPlaylistTab"
+          data-tab="street">
+      街唱歌单
     </view>
-
-    <!-- 街唱歌单内容 -->
-    <view wx:if="{{playlistTab === 'street'}}">
-      <!-- 扫一扫入口 -->
-      <view class="scan-entry card" bindtap="scanCode">
-        <view class="scan-icon">📱</view>
-        <view class="scan-text">扫一扫</view>
-        <view class="arrow">></view>
-      </view>
-
-      <view class="scan-hint">
-        <text>扫描歌手二维码查看演出歌单</text>
-      </view>
+    <view class="tab {{playlistTab === 'mine' ? 'active' : ''}}"
+          bindtap="switchPlaylistTab"
+          data-tab="mine">
+      我的歌单
     </view>
+  </view>
+</view>
 
-    <!-- 我的歌单内容 -->
-    <view wx:if="{{playlistTab === 'mine'}}">
-      <!-- 未登录提示 -->
-      <view wx:if="{{!userInfo}}" class="empty-state">
-        <view class="empty-text">登录后可创建和管理歌单</view>
-        <button class="create-btn" bindtap="goToProfile">
-          前往登录
-        </button>
-      </view>
-
-      <!-- 已登录但无歌单 -->
-      <view wx:elif="{{myPlaylists.length === 0}}" class="empty-state">
-        <view class="create-text">创建我的街唱歌单</view>
-        <button class="create-btn" bindtap="createPlaylist">
-          创建歌单
-        </button>
-      </view>
-
-      <!-- 歌单列表 -->
-      <view wx:else class="playlist-list">
-        <view wx:for="{{myPlaylists}}" wx:key="id" class="playlist-card">
-          <view class="playlist-content" bindtap="viewPlaylistDetail" data-playlist-id="{{item.id}}">
-            <view class="playlist-name">{{item.name}}</view>
-            <view class="song-count">共{{item.songs.length}}首歌</view>
+<!-- 可滑动的内容区 -->
+<swiper class="swiper" current="{{currentTab}}" bindchange="onTabChange">
+  <!-- 街唱歌单内容 -->
+  <swiper-item>
+    <scroll-view class="content" scroll-y>
+      <view class="container">
+        <!-- 扫一扫入口 -->
+        <view class="scan-entry card" bindtap="scanCode">
+          <view class="scan-icon">
+            <icon name="qr" size="48rpx" color="#D4A574" />
           </view>
-          <view class="playlist-actions">
-            <view class="qr-btn" catchtap="showPlaylistQR" data-playlist-id="{{item.id}}" data-playlist-name="{{item.name}}">
-              <image class="qr-icon" src="/images/qr-code.png" mode="aspectFit"></image>
+          <view class="scan-text">扫一扫</view>
+          <view class="arrow">></view>
+        </view>
+
+        <view class="scan-hint">
+          <text>扫描歌手二维码查看演出歌单</text>
+        </view>
+      </view>
+    </scroll-view>
+  </swiper-item>
+
+  <!-- 我的歌单内容 -->
+  <swiper-item>
+    <scroll-view class="content" scroll-y>
+      <view class="container">
+        <!-- 未登录提示 -->
+        <view wx:if="{{!userInfo}}" class="empty-state">
+          <view class="empty-text">登录后可创建和管理歌单</view>
+          <button class="create-btn" bindtap="goToProfile">
+            前往登录
+          </button>
+        </view>
+
+        <!-- 已登录但无歌单 -->
+        <view wx:elif="{{myPlaylists.length === 0}}" class="empty-state">
+          <view class="create-text">创建我的街唱歌单</view>
+          <button class="create-btn" bindtap="createPlaylist">
+            创建歌单
+          </button>
+        </view>
+
+        <!-- 歌单列表 -->
+        <view wx:else class="playlist-list">
+          <view wx:for="{{myPlaylists}}" wx:key="id" class="playlist-card {{item.isSinging ? 'singing' : ''}}">
+            <view class="playlist-content" bindtap="viewPlaylistDetail" data-playlist-id="{{item.id}}">
+              <view class="playlist-header-row">
+                <view class="playlist-name">{{item.name}}</view>
+                <!-- 演唱中标记 -->
+                <view class="singing-badge" wx:if="{{item.isSinging}}">
+                  <icon name="mic" size="18rpx" color="#FFFFFF" />
+                  <text class="singing-text">演唱中</text>
+                </view>
+              </view>
+              <view class="song-count">
+                <text>共{{item.songs.length}}首歌</text>
+                <text class="singing-status" wx:if="{{item.isSinging}}">· 正在演唱</text>
+              </view>
+            </view>
+            <view class="playlist-actions">
+              <view class="qr-btn" catchtap="showPlaylistQR" data-playlist-id="{{item.id}}">
+                <icon name="qr" size="36rpx" color="#8B7D6B" />
+              </view>
+            </view>
+          </view>
+
+          <!-- 创建歌单按钮 - 无论是否有歌单都显示 -->
+          <view class="create-playlist-section">
+            <view class="playlist-card create-playlist-card">
+              <button class="create-btn" bindtap="createPlaylist">
+                <icon name="plus" size="32rpx" color="#D4A574" />
+                <text>创建歌单</text>
+              </button>
             </view>
           </view>
         </view>
       </view>
-    </view>
-  </view>
-</scroll-view>
+    </scroll-view>
+  </swiper-item>
+</swiper>
 
-<!-- 底部大椭圆按钮 -->
+<!-- 底部导航 -->
 <view class="bottom-tabs">
   <view class="bottom-tab active">
     歌单

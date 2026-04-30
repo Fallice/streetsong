@@ -1,42 +1,119 @@
-<navigation-bar title="歌曲列表" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+<navigation-bar title="扫码点歌" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
 
-<scroll-view class="scrollarea" scroll-y type="list">
-  <view class="container">
-    <!-- 空状态 -->
-    <view wx:if="{{singingList.length === 0}}" class="empty-state">
-      <view class="empty-icon">🎵</view>
+<view class="page-container">
+  <!-- 固定区域：正在演唱和下一首 -->
+  <view class="fixed-section">
+    <!-- 演出已结束状态 -->
+    <view wx:if="{{!hasPerformance}}" class="empty-state">
+      <view class="empty-icon">
+        <view class="icon-bg">
+          <icon name="theater" size="72rpx" color="#D4A574" />
+        </view>
+      </view>
+      <view class="empty-text">演出已结束</view>
+      <view class="empty-desc">请等待歌手开始新的演出</view>
+
+      <!-- 开发模式：模拟演出按钮 -->
+      <view wx:if="{{isDevMode}}" class="dev-section">
+        <view class="dev-title">开发调试工具</view>
+        <button class="dev-btn" bindtap="startSimulatedPerformance">
+          <icon name="mic" size="28rpx" color="#FFFFFF" />
+          <text>开始模拟演出</text>
+        </button>
+        <button class="dev-btn secondary" bindtap="showDebugInfo">
+          <text>查看调试信息</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- 演出中但暂无歌曲 -->
+    <view wx:elif="{{singingList.length === 0}}" class="empty-state">
+      <view class="empty-icon">
+        <view class="icon-bg">
+          <icon name="music" size="72rpx" color="#D4A574" />
+        </view>
+      </view>
       <view class="empty-text">暂无歌曲</view>
       <view class="empty-desc">等待歌手添加歌曲</view>
     </view>
 
-    <!-- 歌曲列表 -->
-    <view wx:else class="song-list">
-      <view wx:for="{{singingList}}" wx:key="id"
-            class="song-item {{index === 0 ? 'current' : ''}}"
-            bindtap="{{index >= 2 ? 'likeSong' : ''}}"
-            data-song-id="{{item.id}}"
-            data-index="{{index}}">
-        <view class="song-index {{index === 0 ? 'playing' : ''}}">{{index + 1}}</view>
-        <view class="song-info">
-          <view class="song-name">{{item.name}}</view>
-          <view class="song-artist">{{item.artist}}</view>
-        </view>
-        <view wx:if="{{index === 0}}" class="status-badge">演唱中</view>
-        <view wx:if="{{index >= 2}}" class="like-section">
-          <view class="like-count {{userLikes[item.id] ? 'liked' : ''}}">{{item.priority || 0}}</view>
-          <view class="like-icon">{{userLikes[item.id] ? '❤️' : '🤍'}}</view>
+    <block wx:else>
+      <!-- 正在演唱 -->
+      <view class="section">
+        <view class="section-title">正在演唱</view>
+        <view class="current-song-card">
+          <view class="song-number current">1</view>
+          <view class="song-detail">
+            <view class="song-name large">{{singingList[0].name}}</view>
+            <view class="song-artist">{{singingList[0].artist}}</view>
+          </view>
+          <view class="playing-indicator">
+            <view class="wave"></view>
+            <view class="wave"></view>
+            <view class="wave"></view>
+          </view>
         </view>
       </view>
-    </view>
+
+      <!-- 下一首 -->
+      <view class="section" wx:if="{{singingList.length > 1}}">
+        <view class="section-title">下一首</view>
+        <view class="next-song-card">
+          <view class="song-number next">2</view>
+          <view class="song-info-row">
+            <text class="song-name">{{singingList[1].name}}</text>
+            <text class="song-artist">{{singingList[1].artist}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
   </view>
-</scroll-view>
+
+  <!-- 可滚动区域：歌曲列表 -->
+  <scroll-view class="scrollable-section" scroll-y type="list">
+    <view class="container">
+      <block wx:if="{{hasPerformance && singingList.length > 2}}">
+        <!-- 歌曲列表 -->
+        <view class="section">
+          <view class="section-title">歌曲列表</view>
+          <view class="pending-list">
+            <view wx:for="{{singingList}}" wx:key="id" wx:if="{{index > 1}}" class="pending-item" data-index="{{index}}" data-song-id="{{item.id}}" bindtap="likeSong">
+              <view class="song-number pending">{{index + 1}}</view>
+              <view class="pending-card">
+                <view class="song-info-row">
+                  <text class="song-name">{{item.name}}</text>
+                  <text class="song-artist">{{item.artist}}</text>
+                </view>
+                <!-- 显示点歌留言 -->
+                <view class="song-message" wx:if="{{item.message}}">
+                  <view class="message-text">
+                    <icon name="message" size="24rpx" color="#B5A99A" />
+                    <text>{{item.message}}</text>
+                  </view>
+                </view>
+              </view>
+              <view class="like-section">
+                <view class="like-btn {{userLikes[item.id] ? 'liked' : ''}}">
+                  <icon name="{{userLikes[item.id] ? 'heart' : 'heart-outline'}}" size="32rpx" color="{{userLikes[item.id] ? '#FF0000' : '#B5A99A'}}" />
+                  <text class="like-text">+1</text>
+                </view>
+                <view class="like-count">{{item.priority || 0}}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+</view>
 
 <!-- 底部点歌按钮 -->
 <view class="footer">
-  <button class="point-btn {{hasOrderedSong ? 'disabled' : ''}}"
-          bindtap="showPointModal"
-          disabled="{{hasOrderedSong}}">
-    <text class="btn-icon">{{hasOrderedSong ? '✓' : '+'}}</text>
-    {{hasOrderedSong ? '已点歌' : '点歌'}}
+  <button class="point-btn {{!hasPerformance || hasOrderedSong ? 'disabled' : ''}}" bindtap="goToPointSongPage" disabled="{{!hasPerformance || hasOrderedSong}}">
+    <icon wx:if="{{!hasPerformance}}" name="pause" size="32rpx" color="#FFFFFF" />
+    <icon wx:elif="{{hasOrderedSong}}" name="check" size="32rpx" color="#FFFFFF" />
+    <icon wx:else name="mic" size="32rpx" color="#FFFFFF" />
+    <text>{{!hasPerformance ? '等待演出' : (hasOrderedSong ? '已点歌' : '点歌')}}</text>
   </button>
 </view>
+

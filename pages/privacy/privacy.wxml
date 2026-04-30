@@ -1,0 +1,132 @@
+<navigation-bar title="隐私政策" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<scroll-view class="container" scroll-y type="list">
+  <view class="content">
+    <view class="title">歌单助手隐私政策</view>
+    <view class="update-time">最后更新日期：2026年4月21日</view>
+
+    <view class="section">
+      <view class="section-title">引言</view>
+      <view class="section-content">
+        歌单助手（以下简称"我们"或"本小程序"）非常重视用户的隐私保护。本隐私政策旨在向您说明我们如何收集、使用、存储和保护您的个人信息。请您仔细阅读并理解本政策。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">一、我们收集的信息</view>
+      <view class="section-content">
+        1. 微信授权信息：当您使用微信登录时，我们会获取您的微信OpenID、昵称、头像等公开信息。
+      </view>
+      <view class="section-content">
+        2. 用户创建内容：您创建的歌单、添加的歌曲、发起的演出记录等信息。
+      </view>
+      <view class="section-content">
+        3. 点歌记录：观众通过扫描二维码提交的点歌请求和寄语内容。
+      </view>
+      <view class="section-content">
+        4. 设备信息：我们可能收集您的设备型号、操作系统版本、微信版本等技术信息，用于优化服务体验。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">二、信息使用方式</view>
+      <view class="section-content">
+        我们使用收集的信息用于：
+      </view>
+      <view class="section-content">
+        1. 提供和维护本小程序的核心功能（歌单管理、演出创建、点歌服务等）；
+      </view>
+      <view class="section-content">
+        2. 生成和展示您的个人资料；
+      </view>
+      <view class="section-content">
+        3. 处理点歌请求并展示给歌手；
+      </view>
+      <view class="section-content">
+        4. 改进和优化用户体验；
+      </view>
+      <view class="section-content">
+        5. 防范欺诈和安全风险。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">三、信息存储与保护</view>
+      <view class="section-content">
+        1. 数据存储：您的数据存储在微信云开发服务中，采用业界标准的安全措施保护。
+      </view>
+      <view class="section-content">
+        2. 安全措施：我们采用加密传输、访问控制、定期备份等技术手段保护您的信息安全。
+      </view>
+      <view class="section-content">
+        3. 存储期限：我们会在您使用服务期间保留您的信息，您删除账号后，我们会在合理期限内删除或匿名化处理您的个人信息。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">四、信息共享与披露</view>
+      <view class="section-content">
+        1. 我们不会将您的个人信息出售给第三方。
+      </view>
+      <view class="section-content">
+        2. 在以下情况下，我们可能会披露您的信息：
+      </view>
+      <view class="section-content">
+        · 获得您的明确同意；
+      </view>
+      <view class="section-content">
+        · 根据法律法规要求或政府机关的合法要求；
+      </view>
+      <view class="section-content">
+        · 为保护我们的合法权益或用户的人身财产安全。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">五、您的权利</view>
+      <view class="section-content">
+        1. 访问和修改：您可以随时查看和修改您的个人信息（如昵称、头像）。
+      </view>
+      <view class="section-content">
+        2. 删除：您可以删除您创建的歌单、演出记录等内容。
+      </view>
+      <view class="section-content">
+        3. 撤回同意：您可以随时停止使用本服务，撤回对隐私政策的同意。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">六、第三方服务</view>
+      <view class="section-content">
+        本服务使用微信云开发作为后端服务基础设施，相关数据处理遵循微信的隐私政策。我们不使用其他第三方服务收集您的个人信息。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">七、未成年人保护</view>
+      <view class="section-content">
+        我们非常重视未成年人的信息保护。如果您是未满14周岁的未成年人，请在监护人的指导下使用本服务。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">八、政策更新</view>
+      <view class="section-content">
+        我们可能会不时更新本隐私政策。更新后的政策将在本页面发布，重大变更我们会通过小程序内通知告知您。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">九、联系我们</view>
+      <view class="section-content">
+        如您对本隐私政策有任何疑问或建议，请通过以下方式联系我们：
+      </view>
+      <view class="section-content">
+        微信号：Fallice7
+      </view>
+      <view class="section-content">
+        邮箱：support@streetsong.com
+      </view>
+    </view>
+  </view>
+</scroll-view>

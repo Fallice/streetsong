@@ -29,7 +29,7 @@
     <button class="confirm-btn {{playlistName ? 'enabled' : 'disabled'}}"
             bindtap="createPlaylist"
             disabled="{{!playlistName}}">
-      确认创建
+      {{isCreating ? '创建中...' : '确认创建'}}
     </button>
   </view>
 </view>

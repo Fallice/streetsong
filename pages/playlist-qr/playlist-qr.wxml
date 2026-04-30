@@ -9,7 +9,7 @@
     </view>
 
     <view class="qr-container">
-      <image wx:if="{{qrCodeUrl}}" class="qr-image" src="{{qrCodeUrl}}" mode="aspectFit" show-menu-by-longpress></image>
+      <image wx:if="{{qrCodeUrl}}" class="qr-image" src="{{qrCodeUrl}}" mode="aspectFit" show-menu-by-longpress bindtap="previewQRCode"></image>
       <view wx:else class="qr-loading">
         <view class="loading-spinner"></view>
         <text class="loading-text">生成二维码中...</text>
@@ -17,21 +17,37 @@
     </view>
 
     <view class="qr-tip">
-      <text class="tip-icon">📱</text>
+      <icon name="qr" size="28rpx" color="#8B7D6B" />
       <text>扫码即可查看歌单并点歌</text>
+    </view>
+
+    <!-- 二维码类型提示 -->
+    <view class="qr-type-badge {{isRealQRCode ? 'real' : 'simulated'}}" wx:if="{{qrCodeUrl}}">
+      <text wx:if="{{isRealQRCode}}">✓ 微信小程序码</text>
+      <text wx:else>体验版模拟码</text>
     </view>
   </view>
 
   <view class="action-btns">
     <button class="save-btn {{qrCodeUrl ? 'enabled' : 'disabled'}}" bindtap="saveQRCode" disabled="{{!qrCodeUrl}}">
-      <text class="btn-icon">💾</text>
+      <icon name="save" size="32rpx" color="#FFFFFF" />
       <text>保存至本地</text>
     </button>
 
     <button class="share-btn {{qrCodeUrl ? 'enabled' : 'disabled'}}" open-type="share" disabled="{{!qrCodeUrl}}">
-      <text class="btn-icon">↗️</text>
+      <icon name="share" size="32rpx" color="#2C2419" />
       <text>分享给好友</text>
     </button>
+  </view>
+
+  <!-- 开发测试按钮 -->
+  <view class="dev-section" wx:if="{{isDevMode}}">
+    <view class="dev-title">🧪 开发测试工具</view>
+    <button class="dev-btn" bindtap="generateTestQRCode">
+      <icon name="qr" size="30rpx" color="#FFFFFF" />
+      <text>生成测试二维码</text>
+    </button>
+    <view class="dev-hint">点击二维码可模拟扫码、复制路径或查看歌单ID</view>
   </view>
 
   <!-- 隐藏的Canvas用于生成备用二维码 -->

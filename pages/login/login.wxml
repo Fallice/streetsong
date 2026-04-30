@@ -34,6 +34,11 @@
       <text class="btn-text">微信一键登录</text>
     </button>
 
+    <!-- 取消登录按钮 -->
+    <button class="cancel-login-btn" bindtap="onCancelLogin">
+      <text class="btn-text">取消登录</text>
+    </button>
+
     <!-- 提示文字 -->
     <text class="login-tip">未注册用户将自动创建账号</text>
   </view>

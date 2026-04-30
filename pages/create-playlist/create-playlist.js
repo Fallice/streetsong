@@ -71,7 +71,7 @@ Page({
       // 跳转到歌单详情页面
       setTimeout(() => {
         wx.navigateTo({
-          url: `/pages/playlist-detail/playlist-detail?playlistId=${newPlaylist._id}`
+          url: `/pages/playlist-detail/playlist-detail?playlistId=${newPlaylist.id}`
         })
       }, 1500)
     } catch (err) {
@@ -85,5 +85,6 @@ Page({
         isCreating: false
       })
     }
-  }
+  },
+
 })

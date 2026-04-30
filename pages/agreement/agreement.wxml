@@ -1,0 +1,119 @@
+<navigation-bar title="用户协议" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<scroll-view class="container" scroll-y type="list">
+  <view class="content">
+    <view class="title">歌单助手用户协议</view>
+    <view class="update-time">最后更新日期：2026年4月21日</view>
+
+    <view class="section">
+      <view class="section-title">一、协议范围</view>
+      <view class="section-content">
+        欢迎使用歌单助手！本协议是您（以下简称"用户"）与歌单助手运营方（以下简称"我们"）之间关于使用歌单助手服务所订立的协议。请您仔细阅读本协议，如您不同意本协议任何条款，请勿使用本服务。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">二、服务说明</view>
+      <view class="section-content">
+        1. 歌单助手是一款面向街头表演者的点歌管理工具，提供歌单管理、演出创建、观众点歌等功能。
+      </view>
+      <view class="section-content">
+        2. 用户可以通过本小程序创建个人歌单、生成演出二维码供观众扫码点歌、管理演唱列表等。
+      </view>
+      <view class="section-content">
+        3. 我们保留随时修改或中断服务而不需通知用户的权利。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">三、账号注册与安全</view>
+      <view class="section-content">
+        1. 您需要使用微信账号授权登录本小程序。您应妥善保管账号信息，对账号下的所有行为负责。
+      </view>
+      <view class="section-content">
+        2. 您保证提供的注册信息真实、准确、完整。如信息有变更，应及时更新。
+      </view>
+      <view class="section-content">
+        3. 如发现账号异常或被盗，请立即联系我们。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">四、用户行为规范</view>
+      <view class="section-content">
+        您在使用本服务时应当遵守法律法规，不得从事以下行为：
+      </view>
+      <view class="section-content">
+        1. 发布或传播违法违规内容；
+      </view>
+      <view class="section-content">
+        2. 侵犯他人知识产权或其他合法权益；
+      </view>
+      <view class="section-content">
+        3. 干扰或破坏本服务的正常运行；
+      </view>
+      <view class="section-content">
+        4. 利用本服务进行商业推广或广告行为（经授权的除外）；
+      </view>
+      <view class="section-content">
+        5. 其他违反法律法规或公序良俗的行为。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">五、内容规范</view>
+      <view class="section-content">
+        1. 您在歌单中添加的歌曲信息应真实准确，不得包含违法违规内容。
+      </view>
+      <view class="section-content">
+        2. 观众点歌时提交的寄语内容应符合法律法规，不得包含辱骂、色情、暴力等不良信息。
+      </view>
+      <view class="section-content">
+        3. 我们有权对违规内容进行删除或屏蔽处理。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">六、知识产权</view>
+      <view class="section-content">
+        1. 本小程序的界面设计、程序代码、商标等知识产权归我们所有。
+      </view>
+      <view class="section-content">
+        2. 您在使用本服务过程中产生的内容（如歌单、演出记录等），您保留相关权利，同时授予我们在必要范围内使用的权利。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">七、免责声明</view>
+      <view class="section-content">
+        1. 本小程序仅供技术展示和学习交流使用，不保证服务的连续性、安全性或准确性。
+      </view>
+      <view class="section-content">
+        2. 因网络状况、设备故障、第三方原因等导致的服务中断或数据丢失，我们不承担责任。
+      </view>
+      <view class="section-content">
+        3. 用户使用本服务产生的任何纠纷，由用户自行承担。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">八、协议变更</view>
+      <view class="section-content">
+        我们有权根据需要不时修改本协议条款。修改后的协议将在小程序内公示，如您继续使用服务，视为接受修改后的协议。
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">九、联系我们</view>
+      <view class="section-content">
+        如您对本协议有任何疑问，请通过以下方式联系我们：
+      </view>
+      <view class="section-content">
+        微信号：Fallice7
+      </view>
+      <view class="section-content">
+        邮箱：support@streetsong.com
+      </view>
+    </view>
+  </view>
+</scroll-view>

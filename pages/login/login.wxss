@@ -109,6 +109,14 @@ page {
   box-shadow: none;
 }
 
+.phone-login-btn.disabled .btn-text {
+  color: #8B7D6B;
+}
+
+.phone-login-btn.disabled .btn-icon {
+  opacity: 0.6;
+}
+
 .phone-login-btn:not(.disabled):active {
   transform: scale(0.98);
   box-shadow: 0 4rpx 16rpx rgba(212, 165, 116, 0.3);
@@ -123,6 +131,34 @@ page {
   font-size: 32rpx;
   color: #FFFFFF;
   font-weight: 500;
+}
+
+/* 取消登录按钮 */
+.cancel-login-btn {
+  width: 560rpx;
+  height: 96rpx;
+  background: transparent;
+  border-radius: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  margin-bottom: 16rpx;
+  padding: 0;
+}
+
+.cancel-login-btn::after {
+  border: none;
+}
+
+.cancel-login-btn .btn-text {
+  font-size: 30rpx;
+  color: #8B7D6B; /* 增加灰度，让文字更清晰可见 */
+  font-weight: 400;
+}
+
+.cancel-login-btn:active .btn-text {
+  color: #5C5143;
 }
 
 /* 提示文字 */
@@ -308,5 +344,6 @@ page {
 
 .confirm-btn.disabled {
   background: #E8E0D4;
+  color: #8B7D6B;
   box-shadow: none;
 }

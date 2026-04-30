@@ -90,10 +90,21 @@ Component({
       })
     },
     back() {
+      console.log('返回按钮点击事件触发')
       const data = this.data
       if (data.delta) {
         wx.navigateBack({
-          delta: data.delta
+          delta: data.delta,
+          success: () => {
+            console.log('返回上一页成功')
+          },
+          fail: (err) => {
+            console.error('返回上一页失败:', err)
+            // 如果没有上一页，则跳转到首页
+            wx.switchTab({
+              url: '/pages/index/index'
+            })
+          }
         })
       }
       this.triggerEvent('back', { delta: data.delta }, {})

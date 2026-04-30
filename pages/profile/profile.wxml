@@ -2,10 +2,18 @@
 <navigation-bar title="我的" back="{{false}}" color="black" background="#FFF"></navigation-bar>
 
 <view class="container">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
   <!-- 未登录状态 - 显示登录/注册按钮 -->
-  <block wx:if="{{!isLoggedIn}}">
+  <block wx:elif="{{!isLoggedIn}}">
     <view class="not-login-page">
-      <view class="app-icon">🎤</view>
+      <view class="app-icon">
+        <icon name="mic" size="80rpx" color="#D4A574" />
+      </view>
       <text class="app-name">街唱</text>
       <text class="app-slogan">扫码点歌，随时演唱</text>
 

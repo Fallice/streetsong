@@ -31,19 +31,27 @@ Page({
 
   // 显示用户协议
   showAgreement() {
-    wx.showModal({
-      title: '用户协议',
-      content: '街唱用户协议...\n（此处填写完整的用户协议内容）',
-      showCancel: false
+    wx.navigateTo({
+      url: '/pages/agreement/agreement'
     })
   },
 
   // 显示隐私政策
   showPrivacy() {
-    wx.showModal({
-      title: '隐私政策',
-      content: '街唱隐私政策...\n（此处填写完整的隐私政策内容）',
-      showCancel: false
+    wx.navigateTo({
+      url: '/pages/privacy/privacy'
+    })
+  },
+
+  // 取消登录
+  onCancelLogin() {
+    wx.navigateBack({
+      fail: () => {
+        // 如果没有上一页，则跳转到首页
+        wx.redirectTo({
+          url: '/pages/index/index'
+        })
+      }
     })
   },
 

@@ -6,7 +6,9 @@ const STORAGE_KEYS = {
   USER_INFO: 'userInfo',
   PLAYLISTS: 'playlists',
   CURRENT_PLAYLIST: 'currentPlaylist',
-  SINGING_LIST: 'singingList'
+  SINGING_LIST: 'singingList',
+  PERFORMANCE: 'performance', // 当前演出
+  PERFORMANCE_HISTORY: 'performanceHistory' // 演出历史
 }
 
 /**
@@ -24,13 +26,27 @@ const getPlaylists = () => {
 
 /**
  * 添加歌单
+ * @param {string} name - 歌单名称
+ * @param {string} userId - 创建者ID（歌手ID）
+ * @param {string} userName - 创建者名称
  */
-const addPlaylist = (name) => {
+const addPlaylist = (name, userId = null, userName = '') => {
   const playlists = getPlaylists()
+
+  // 如果没有提供userId，尝试从本地存储获取当前用户
+  if (!userId) {
+    const userInfo = wx.getStorageSync('userInfo')
+    if (userInfo) {
+      userId = userInfo.id || userInfo.openid
+      userName = userInfo.nickname || userInfo.nickName || ''
+    }
+  }
 
   const newPlaylist = {
     id: util.generateId(),
     name,
+    userId: userId, // 关联创建者（歌手）ID
+    userName: userName, // 创建者名称
     songs: [],
     createTime: Date.now(),
     updateTime: Date.now(),
@@ -269,6 +285,180 @@ const generateQRCode = (playlistId) => {
   })
 }
 
+/**
+ * ========== 演出相关 ==========
+ */
+
+/**
+ * 获取当前演出
+ */
+const getCurrentPerformance = () => {
+  try {
+    return wx.getStorageSync(STORAGE_KEYS.PERFORMANCE) || null
+  } catch (error) {
+    console.error('获取当前演出失败:', error)
+    return null
+  }
+}
+
+/**
+ * 创建新演出
+ * @param {string} playlistId - 歌单ID
+ * @param {string} userId - 歌手ID
+ * @param {string} userName - 歌手名称
+ */
+const createPerformance = (playlistId, userId, userName) => {
+  // 先结束之前的演出
+  endCurrentPerformance()
+
+  const performance = {
+    id: util.generateId(),
+    playlistId: playlistId,
+    singerId: userId,
+    singerName: userName,
+    status: 'ongoing', // ongoing | ended
+    startTime: Date.now(),
+    endTime: null,
+    singingList: [],
+    currentIndex: 0, // 当前演唱歌曲索引
+    sungCount: 0 // 已演唱歌曲数量
+  }
+
+  try {
+    wx.setStorageSync(STORAGE_KEYS.PERFORMANCE, performance)
+    return performance
+  } catch (error) {
+    console.error('创建演出失败:', error)
+    return null
+  }
+}
+
+/**
+ * 结束当前演出
+ */
+const endCurrentPerformance = () => {
+  const performance = getCurrentPerformance()
+  if (performance && performance.status === 'ongoing') {
+    performance.status = 'ended'
+    performance.endTime = Date.now()
+
+    try {
+      // 保存到历史
+      const history = wx.getStorageSync(STORAGE_KEYS.PERFORMANCE_HISTORY) || []
+      history.push(performance)
+      wx.setStorageSync(STORAGE_KEYS.PERFORMANCE_HISTORY, history)
+
+      // 清空当前演出
+      wx.setStorageSync(STORAGE_KEYS.PERFORMANCE, null)
+
+      // 清空演唱列表
+      setSingingList([])
+
+      return true
+    } catch (error) {
+      console.error('结束演出失败:', error)
+      return false
+    }
+  }
+  return false
+}
+
+/**
+ * 检查歌单是否有正在进行的演出
+ * @param {string} playlistId - 歌单ID
+ */
+const hasOngoingPerformance = (playlistId) => {
+  const performance = getCurrentPerformance()
+  return performance &&
+         performance.status === 'ongoing' &&
+         performance.playlistId === playlistId
+}
+
+/**
+ * 获取演出对应的演唱列表
+ */
+const getPerformanceSingingList = () => {
+  const performance = getCurrentPerformance()
+  if (performance && performance.status === 'ongoing') {
+    return performance.singingList || []
+  }
+  return []
+}
+
+/**
+ * 更新演出的演唱列表
+ * @param {Array} singingList - 演唱列表
+ */
+const updatePerformanceSingingList = (singingList) => {
+  const performance = getCurrentPerformance()
+  if (performance && performance.status === 'ongoing') {
+    performance.singingList = singingList
+    try {
+      wx.setStorageSync(STORAGE_KEYS.PERFORMANCE, performance)
+      // 同时更新全局演唱列表
+      setSingingList(singingList)
+      return true
+    } catch (error) {
+      console.error('更新演出演唱列表失败:', error)
+      return false
+    }
+  }
+  return false
+}
+
+/**
+ * 更新演唱进度
+ * @param {number} currentIndex - 当前歌曲索引
+ * @param {number} sungCount - 已演唱数量
+ */
+const updatePerformanceProgress = (currentIndex, sungCount) => {
+  const performance = getCurrentPerformance()
+  if (performance && performance.status === 'ongoing') {
+    performance.currentIndex = currentIndex
+    performance.sungCount = sungCount
+    try {
+      wx.setStorageSync(STORAGE_KEYS.PERFORMANCE, performance)
+      return true
+    } catch (error) {
+      console.error('更新演唱进度失败:', error)
+      return false
+    }
+  }
+  return false
+}
+
+/**
+ * 获取演唱进度
+ */
+const getPerformanceProgress = () => {
+  const performance = getCurrentPerformance()
+  if (performance && performance.status === 'ongoing') {
+    return {
+      currentIndex: performance.currentIndex || 0,
+      sungCount: performance.sungCount || 0,
+      singingList: performance.singingList || []
+    }
+  }
+  return null
+}
+
+/**
+ * 清除用户的点歌记录（当演出结束时调用）
+ * @param {string} performanceId - 演出ID
+ */
+const clearOrderedSongsForPerformance = (performanceId) => {
+  try {
+    const orderedSongs = wx.getStorageSync('orderedSongs') || []
+    // 只保留不属于当前演出的记录（如果有performanceId关联的话）
+    // 简单处理：演出结束时清空所有点歌记录
+    wx.setStorageSync('orderedSongs', [])
+    return true
+  } catch (error) {
+    console.error('清除点歌记录失败:', error)
+    return false
+  }
+}
+
 module.exports = {
   STORAGE_KEYS,
   getPlaylists,
@@ -283,5 +473,16 @@ module.exports = {
   getSingingList,
   setSingingList,
   addSongToSingingList,
-  generateQRCode
+  generateQRCode,
+  // 演出相关
+  getCurrentPerformance,
+  createPerformance,
+  endCurrentPerformance,
+  hasOngoingPerformance,
+  getPerformanceSingingList,
+  updatePerformanceSingingList,
+  clearOrderedSongsForPerformance,
+  // 演唱进度相关
+  updatePerformanceProgress,
+  getPerformanceProgress
 }

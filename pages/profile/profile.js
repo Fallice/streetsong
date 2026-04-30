@@ -4,29 +4,40 @@ const app = getApp()
 Page({
   data: {
     isLoggedIn: false,
-    userInfo: null
+    userInfo: null,
+    isLoading: true // 添加加载状态
   },
 
   onLoad() {
+    // 同步设置loading状态，避免闪屏
+    this.setData({ isLoading: false })
     this.checkLoginStatus()
   },
 
   onShow() {
+    // 避免重复设置loading状态
     this.checkLoginStatus()
   },
 
   // 检查登录状态
   checkLoginStatus() {
+    // 同步检查本地存储，直接设置状态，避免异步加载的闪屏
     const userInfo = wx.getStorageSync('userInfo')
     if (userInfo && userInfo.id) {
+      // 如果没有头像或头像为空，使用默认头像
+      if (!userInfo.avatarUrl || userInfo.avatarUrl === '') {
+        userInfo.avatarUrl = '/images/avatar.svg'
+      }
       this.setData({
         isLoggedIn: true,
-        userInfo: userInfo
+        userInfo: userInfo,
+        isLoading: false
       })
     } else {
       this.setData({
         isLoggedIn: false,
-        userInfo: null
+        userInfo: null,
+        isLoading: false
       })
     }
   },
@@ -84,7 +95,7 @@ Page({
     console.error('头像加载失败:', e)
     // 设置默认头像
     this.setData({
-      'userInfo.avatarUrl': '/images/avatar.png'
+      'userInfo.avatarUrl': '/images/avatar.svg'
     })
   }
 })

@@ -1,18 +1,30 @@
 // app.js
+const db = require('./utils/database.js')
+
 App({
-  onLaunch() {
+  globalData: {
+    userInfo: null, // 用户信息
+    isSinger: false, // 是否为歌手身份
+    currentPlaylist: null, // 当前演唱中的歌单
+    currentSong: null, // 当前演唱的歌曲
+    singingList: [], // 演唱列表
+    currentPerformance: null, // 当前演出
+    returnToMyPlaylists: false, // 从演唱页面返回时切换到"我的歌单"标签
+    navigationBarHeight: 0 // 导航栏高度（全局）
+  },
+
+  onLaunch(options) {
     // 小程序启动时执行
-    console.log('街唱小程序启动')
+    console.log('街唱小程序启动', options)
+
+    // 计算导航栏高度
+    this.calculateNavigationBarHeight()
 
     // 初始化云开发
     if (!wx.cloud) {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力')
     } else {
       wx.cloud.init({
-        // env 参数说明：
-        // env 参数决定接下来小程序发起的云开发调用（wx.cloud.xxx）会默认请求到哪个云环境的资源
-        // 此处请填入环境 ID, 环境 ID 可打开云控制台查看
-        // 如不填则使用默认环境（第一个创建的环境）
         env: 'cloud1-7gj9tjvc8437e18c',
         traceUser: true
       })
@@ -23,6 +35,73 @@ App({
 
     // 初始化全局数据
     this.initGlobalData()
+
+    // 处理扫码进入场景
+    this.handleSceneParams(options)
+  },
+
+  onShow(options) {
+    // 处理从后台被扫码打开的场景
+    this.handleSceneParams(options)
+
+    // 不要每次小程序显示时都重新检查登录状态，避免闪屏
+    // 只在真正需要时才检查
+  },
+
+  // 处理场景参数（扫码进入）
+  handleSceneParams(options) {
+    console.log('处理场景参数:', options)
+
+    // 微信小程序码扫码进入时，scene 参数在 options.query.scene 中
+    const scene = options.query && options.query.scene
+
+    if (scene) {
+      // scene 是二维码中的参数，需要解码
+      // 我们生成的格式是: p=playlistId
+      const decodedScene = decodeURIComponent(scene)
+      console.log('扫码进入，scene参数:', decodedScene)
+
+      // 解析 scene 参数
+      const params = this.parseSceneParams(decodedScene)
+      console.log('解析后的参数:', params)
+
+      if (params.p) {
+        // p 参数表示歌单ID，跳转到演唱页面
+        const playlistId = params.p
+        console.log('准备跳转到歌单页面:', playlistId)
+
+        // 延迟执行跳转，确保页面栈已准备好
+        setTimeout(() => {
+          wx.navigateTo({
+            url: `/pages/singing-list/singing-list?playlistId=${playlistId}&fromScan=true`,
+            fail: (err) => {
+              console.error('跳转失败:', err)
+              // 如果 navigateTo 失败（可能页面栈已满），尝试 redirectTo
+              wx.redirectTo({
+                url: `/pages/singing-list/singing-list?playlistId=${playlistId}&fromScan=true`
+              })
+            }
+          })
+        }, 500)
+      }
+    }
+  },
+
+  // 解析 scene 参数
+  parseSceneParams(sceneStr) {
+    const params = {}
+    if (!sceneStr) return params
+
+    // 支持格式: key1=value1&key2=value2
+    const pairs = sceneStr.split('&')
+    pairs.forEach(pair => {
+      const [key, value] = pair.split('=')
+      if (key && value !== undefined) {
+        params[key] = decodeURIComponent(value)
+      }
+    })
+
+    return params
   },
 
   globalData: {
@@ -31,7 +110,8 @@ App({
     currentPlaylist: null, // 当前演唱中的歌单
     currentSong: null, // 当前演唱的歌曲
     singingList: [], // 演唱列表
-    currentPerformance: null // 当前演出
+    currentPerformance: null, // 当前演出
+    returnToMyPlaylists: false // 从演唱页面返回时切换到"我的歌单"标签
   },
 
   // 微信登录（使用云函数）
@@ -60,20 +140,18 @@ App({
 
   // 检查登录状态
   checkLoginStatus() {
-    // 这里可以通过 wx.getStorageSync 获取本地存储的登录状态
+    // 只从本地存储获取用户信息，避免异步云函数调用导致的闪屏
     const userInfo = wx.getStorageSync('userInfo')
+    console.log('检查登录状态，本地存储信息:', userInfo)
+
     if (userInfo) {
-      // 验证用户是否还存在
-      const user = db.UserDB.getUserById(userInfo.id)
-      if (user) {
-        this.globalData.userInfo = user
-        this.globalData.isSinger = user.isSinger || false
-      } else {
-        // 用户不存在，清除本地存储
-        wx.removeStorageSync('userInfo')
-        // 重新登录
-        this.wechatLogin()
-      }
+      // 直接使用本地存储的用户信息，不调用云函数
+      this.globalData.userInfo = userInfo
+      this.globalData.isSinger = userInfo.isSinger || false
+    } else {
+      console.log('本地无用户信息，未登录')
+      this.globalData.userInfo = null
+      this.globalData.isSinger = false
     }
   },
 
@@ -143,6 +221,28 @@ App({
     },
     remove(key) {
       wx.removeStorageSync(key)
+    }
+  },
+
+  // 计算导航栏高度
+  calculateNavigationBarHeight() {
+    try {
+      const systemInfo = wx.getWindowInfo() || wx.getSystemInfoSync()
+      const menuButton = wx.getMenuButtonBoundingClientRect()
+
+      if (menuButton) {
+        const navigationBarHeight = menuButton.top + menuButton.height + (menuButton.top - systemInfo.safeArea.top) * 2
+        this.globalData.navigationBarHeight = navigationBarHeight
+        console.log('导航栏高度计算成功:', navigationBarHeight)
+      } else {
+        // 降级方案：使用系统状态栏高度 + 默认导航栏高度
+        this.globalData.navigationBarHeight = systemInfo.safeArea.top + 44
+        console.log('导航栏高度使用降级方案:', this.globalData.navigationBarHeight)
+      }
+    } catch (error) {
+      console.error('计算导航栏高度失败:', error)
+      // 最坏情况的默认值
+      this.globalData.navigationBarHeight = 88
     }
   }
 })

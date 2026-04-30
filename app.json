@@ -3,6 +3,8 @@
     "pages/index/index",
     "pages/profile/profile",
     "pages/login/login",
+    "pages/agreement/agreement",
+    "pages/privacy/privacy",
     "pages/playlist-qr/playlist-qr",
     "pages/library/library",
     "pages/library-add/library-add",

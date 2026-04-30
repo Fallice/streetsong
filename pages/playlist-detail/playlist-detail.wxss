@@ -12,47 +12,65 @@ page {
 
 .container {
   padding: 32rpx;
-  padding-bottom: 320rpx;
+  padding-bottom: 280rpx;
 }
 
 /* ===== 歌单头部 ===== */
 .playlist-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 40rpx;
-  padding: 32rpx;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  background: #FFFFFF;
   border-radius: 24rpx;
-  box-shadow:
-    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
-    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
+  padding: 32rpx;
+  margin-bottom: 32rpx;
+  box-shadow: 0 4rpx 16rpx rgba(44, 36, 25, 0.06);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.playlist-icon {
+  width: 120rpx;
+  height: 120rpx;
+  background: linear-gradient(135deg, #E8C9A0 0%, #D4A574 100%);
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .playlist-info {
   flex: 1;
+  min-width: 0;
 }
 
-.playlist-name {
-  font-size: 40rpx;
-  font-weight: 600;
-  color: #2C2419;
+.playlist-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
   margin-bottom: 12rpx;
 }
 
-.song-count {
-  font-size: 28rpx;
-  color: #8B7D6B;
+.playlist-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #2C2419;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .edit-btn {
-  width: 72rpx;
-  height: 72rpx;
+  width: 56rpx;
+  height: 56rpx;
   background: #F5F0E8;
-  border-radius: 16rpx;
+  border-radius: 14rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
@@ -61,15 +79,94 @@ page {
   transform: scale(0.95);
 }
 
+.delete-btn {
+  width: 56rpx;
+  height: 56rpx;
+  background: #FFF5F5;
+  border-radius: 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  margin-left: 16rpx;
+}
+
+.delete-btn:active {
+  background: #E07A5F;
+  transform: scale(0.95);
+}
+
+/* 删除确认模态框样式 */
+.delete-warning {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+  padding: 24rpx 0;
+}
+
+.warning-text {
+  font-size: 28rpx;
+  color: #2C2419;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* 危险按钮样式 */
+.confirm-btn.danger {
+  background: linear-gradient(135deg, #E07A5F 0%, #C96A52 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 16rpx rgba(224, 122, 95, 0.4);
+}
+
+.confirm-btn.danger:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 12rpx rgba(224, 122, 95, 0.3);
+}
+
 .edit-icon {
-  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playlist-stats {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.stats-item {
+  font-size: 26rpx;
+  color: #8B7D6B;
+}
+
+/* ===== 列表区域 ===== */
+.list-section {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(44, 36, 25, 0.06);
+}
+
+.section-header {
+  padding: 8rpx 8rpx 24rpx;
+  border-bottom: 2rpx solid #F0EBE3;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2C2419;
 }
 
 /* ===== 歌曲列表 ===== */
 .song-list {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: 16rpx;
 }
 
 .song-item {
@@ -78,71 +175,72 @@ page {
   gap: 20rpx;
 }
 
-.song-index {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #E8C9A0 0%, #D4A574 100%);
-  color: #FFFFFF;
+.song-number {
+  width: 64rpx;
+  height: 64rpx;
+  background: linear-gradient(135deg, #F5F0E8 0%, #E8E0D4 100%);
+  border-radius: 16rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 600;
+  color: #8B7D6B;
   flex-shrink: 0;
-  box-shadow: 0 4rpx 12rpx rgba(212, 165, 116, 0.3);
 }
 
 .song-card {
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 28rpx 32rpx;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
-  border-radius: 20rpx;
-  box-shadow:
-    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
-    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
-  transition: all 0.3s ease;
+  padding: 24rpx;
+  background: #FAF7F2;
+  border-radius: 16rpx;
+  transition: all 0.2s ease;
 }
 
 .song-card:active {
-  transform: translateY(2rpx);
-  box-shadow:
-    0 2rpx 12rpx rgba(212, 165, 116, 0.06),
-    0 1rpx 2rpx rgba(44, 36, 25, 0.02);
+  background: #F5F0E8;
 }
 
 .song-info {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 8rpx;
 }
 
 .song-name {
-  font-size: 32rpx;
+  font-size: 30rpx;
   color: #2C2419;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .song-artist {
   font-size: 26rpx;
   color: #8B7D6B;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .song-actions {
   display: flex;
-  gap: 16rpx;
+  gap: 12rpx;
+  margin-left: 16rpx;
 }
 
 .action-btn {
-  width: 64rpx;
-  height: 64rpx;
+  width: 56rpx;
+  height: 56rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F5F0E8;
+  background: #FFFFFF;
   border-radius: 12rpx;
   transition: all 0.2s ease;
 }
@@ -153,7 +251,7 @@ page {
 }
 
 .btn-icon {
-  font-size: 28rpx;
+  font-size: 24rpx;
   color: #5C5143;
 }
 
@@ -162,82 +260,81 @@ page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 120rpx 40rpx;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
-  border-radius: 24rpx;
-  box-shadow:
-    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
-    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
+  padding: 80rpx 40rpx;
 }
 
-.empty-icon {
-  font-size: 100rpx;
+.empty-state .empty-icon {
   margin-bottom: 24rpx;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .empty-text {
-  font-size: 34rpx;
+  font-size: 32rpx;
   color: #2C2419;
   font-weight: 600;
   margin-bottom: 12rpx;
 }
 
 .empty-desc {
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: #8B7D6B;
 }
 
-/* ===== 添加歌曲按钮 ===== */
-.add-btn-container {
+/* ===== 添加按钮 ===== */
+.fab-btn {
   position: fixed;
-  bottom: 180rpx;
+  bottom: 200rpx;
   right: 40rpx;
-  z-index: 100;
-}
-
-.add-btn {
   width: 96rpx;
   height: 96rpx;
-  border-radius: 50%;
   background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 8rpx 24rpx rgba(212, 165, 116, 0.4);
+  z-index: 100;
   transition: all 0.3s ease;
 }
 
-.add-btn:active {
+.fab-btn:active {
   transform: scale(0.95);
   box-shadow: 0 4rpx 16rpx rgba(212, 165, 116, 0.3);
 }
 
-.add-icon {
-  font-size: 48rpx;
-  color: #FFFFFF;
-  font-weight: 300;
+.fab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* ===== 开始街唱按钮 ===== */
-.start-btn-container {
+/* ===== 底部栏 ===== */
+.bottom-bar {
   position: fixed;
-  bottom: 40rpx;
-  left: 40rpx;
-  right: 40rpx;
-  z-index: 100;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx 40rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background: #FFFFFF;
+  box-shadow: 0 -4rpx 20rpx rgba(44, 36, 25, 0.06);
+  z-index: 99;
 }
 
 .start-btn {
   width: 100%;
-  height: 100rpx;
+  height: 96rpx;
   background: linear-gradient(135deg, #E07A5F 0%, #C96A52 100%);
   color: #FFFFFF;
-  border-radius: 50rpx;
-  font-size: 34rpx;
+  border-radius: 48rpx;
+  font-size: 32rpx;
   font-weight: 600;
   border: none;
-  box-shadow: 0 4rpx 20rpx rgba(224, 122, 95, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  box-shadow: 0 4rpx 16rpx rgba(224, 122, 95, 0.4);
   transition: all 0.3s ease;
 }
 
@@ -254,6 +351,12 @@ page {
   background: #E8E0D4;
   color: #B5A99A;
   box-shadow: none;
+}
+
+.start-btn .btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ===== 模态框 ===== */
@@ -280,36 +383,67 @@ page {
 
 .modal-content {
   width: 640rpx;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  background: #FFFFFF;
   border-radius: 28rpx;
-  padding: 48rpx;
-  box-shadow:
-    0 20rpx 60rpx rgba(44, 36, 25, 0.2),
-    0 8rpx 24rpx rgba(212, 165, 116, 0.15);
+  overflow: hidden;
+  box-shadow: 0 20rpx 60rpx rgba(44, 36, 25, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx 32rpx 24rpx;
 }
 
 .modal-title {
-  font-size: 36rpx;
+  font-size: 34rpx;
   font-weight: 600;
   color: #2C2419;
-  margin-bottom: 40rpx;
-  text-align: center;
+}
+
+.modal-close {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal-close:active {
+  color: #2C2419;
+  transform: scale(0.9);
 }
 
 .modal-body {
-  margin-bottom: 40rpx;
+  padding: 0 32rpx 32rpx;
+}
+
+.input-group {
+  margin-bottom: 24rpx;
+}
+
+.input-group:last-child {
+  margin-bottom: 0;
+}
+
+.input-label {
+  font-size: 26rpx;
+  color: #5C5143;
+  margin-bottom: 12rpx;
+  font-weight: 500;
 }
 
 .modal-input {
   width: 100%;
   height: 88rpx;
-  background: #F5F0E8;
+  background: #FAF7F2;
   border-radius: 16rpx;
-  padding: 0 28rpx;
+  padding: 0 24rpx;
   box-sizing: border-box;
   font-size: 30rpx;
   color: #2C2419;
-  margin-bottom: 24rpx;
   border: 2rpx solid transparent;
   transition: all 0.2s ease;
 }
@@ -325,7 +459,8 @@ page {
 
 .modal-footer {
   display: flex;
-  gap: 24rpx;
+  padding: 0 32rpx 32rpx;
+  gap: 20rpx;
 }
 
 .modal-btn {
@@ -362,7 +497,7 @@ page {
   box-shadow: 0 2rpx 8rpx rgba(212, 165, 116, 0.3);
 }
 
-/* ===== 操作菜单（全局一致样式） ===== */
+/* ===== 操作菜单 ===== */
 .action-menu {
   position: fixed;
   top: 0;
@@ -387,35 +522,32 @@ page {
 
 .menu-content {
   width: 640rpx;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  background: #FFFFFF;
   border-radius: 28rpx;
-  padding: 16rpx 0;
-  box-shadow:
-    0 20rpx 60rpx rgba(44, 36, 25, 0.2),
-    0 8rpx 24rpx rgba(212, 165, 116, 0.15);
   overflow: hidden;
+  box-shadow: 0 20rpx 60rpx rgba(44, 36, 25, 0.2);
 }
 
 .menu-header {
-  padding: 24rpx 32rpx;
+  padding: 28rpx 32rpx;
   font-size: 26rpx;
   color: #8B7D6B;
   text-align: center;
   border-bottom: 2rpx solid #F0EBE3;
-  margin-bottom: 8rpx;
+  font-weight: 500;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 28rpx 32rpx;
+  padding: 32rpx;
   font-size: 30rpx;
   color: #2C2419;
   transition: all 0.2s ease;
 }
 
 .menu-item:active {
-  background: #F5F0E8;
+  background: #FAF7F2;
 }
 
 .menu-item.delete {
@@ -427,10 +559,11 @@ page {
 }
 
 .menu-icon {
-  font-size: 32rpx;
   margin-right: 20rpx;
   width: 48rpx;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .menu-divider {

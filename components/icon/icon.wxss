@@ -1,0 +1,11 @@
+/* components/icon/icon.wxss */
+.icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.icon {
+  display: block;
+}

@@ -12,6 +12,7 @@ Page({
     showMenu: false,
     showEditModal: false,
     showSortModal: false,
+    showDeleteModal: false,
     currentSongId: '',
     currentSongIndex: -1,
     newSong: {
@@ -50,6 +51,36 @@ Page({
     } catch (err) {
       console.error('获取歌单失败:', err)
       util.showToast('获取歌单失败')
+    }
+  },
+
+  // 显示删除确认弹窗
+  showDeleteModal() {
+    this.setData({
+      showDeleteModal: true
+    })
+  },
+
+  // 隐藏删除确认弹窗
+  hideDeleteModal() {
+    this.setData({
+      showDeleteModal: false
+    })
+  },
+
+  // 确认删除歌单
+  async confirmDeletePlaylist() {
+    const { playlistId } = this.data
+
+    try {
+      await cloudApi.deletePlaylist(playlistId)
+      util.showToast('删除成功')
+      this.hideDeleteModal()
+      // 返回上一页
+      wx.navigateBack()
+    } catch (err) {
+      console.error('删除失败:', err)
+      util.showToast('删除失败')
     }
   },
 

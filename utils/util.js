@@ -20,10 +20,13 @@ const formatNumber = n => {
 }
 
 /**
- * 生成唯一ID
+ * 生成16位唯一ID
  */
 const generateId = () => {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2)
+  const timestamp = Date.now().toString(36).substr(2) // 时间戳
+  const random = Math.random().toString(36).substr(2, 6) // 6位随机数
+  const id = (timestamp + random).substr(0, 16) // 总共16位
+  return id.toUpperCase() // 可转为大写，方便查看
 }
 
 /**

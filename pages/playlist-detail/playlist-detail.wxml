@@ -2,38 +2,60 @@
 
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
-    <!-- 歌单信息 -->
+    <!-- 歌单信息头部 -->
     <view class="playlist-header">
-      <view class="playlist-info">
-        <view class="playlist-name">{{playlist ? playlist.name : ''}}</view>
-        <view class="song-count">共 {{songs.length}} 首歌曲</view>
-      </view>
-      <view class="edit-btn" bindtap="editPlaylistName">
-        <text class="edit-icon">✏️</text>
+      <view class="header-content">
+        <view class="playlist-icon">
+          <icon name="note" size="40rpx" color="#FFFFFF" />
+        </view>
+        <view class="playlist-info">
+          <view class="playlist-name-wrapper">
+            <text class="playlist-name">{{playlist ? playlist.name : ''}}</text>
+            <view class="edit-btn" bindtap="editPlaylistName">
+              <icon name="edit" size="28rpx" color="#8B7D6B" />
+            </view>
+          </view>
+          <view class="playlist-stats">
+            <text class="stats-item">{{songs.length}} 首歌曲</text>
+          </view>
+        </view>
+        <view class="delete-btn" bindtap="showDeleteModal">
+          <icon name="delete" size="32rpx" color="#E07A5F" />
+        </view>
       </view>
     </view>
 
     <!-- 歌曲列表 -->
-    <view wx:if="{{songs.length === 0}}" class="empty-state">
-      <view class="empty-icon">🎵</view>
-      <view class="empty-text">暂无歌曲</view>
-      <view class="empty-desc">点击下方按钮添加歌曲</view>
-    </view>
+    <view class="list-section">
+      <view class="section-header">
+        <text class="section-title">歌曲列表</text>
+      </view>
 
-    <view wx:else class="song-list">
-      <view wx:for="{{songs}}" wx:key="id" class="song-item">
-        <view class="song-index">{{index + 1}}</view>
-        <view class="song-card">
-          <view class="song-info">
-            <view class="song-name">{{item.name}}</view>
-            <view class="song-artist">{{item.artist}}</view>
-          </view>
-          <view class="song-actions">
-            <view class="action-btn sort-btn" bindtap="sortSong" data-index="{{index}}">
-              <text class="btn-icon">⇅</text>
+      <!-- 空状态 -->
+      <view wx:if="{{songs.length === 0}}" class="empty-state">
+        <view class="empty-icon">
+          <icon name="music" size="80rpx" color="#D4A574" />
+        </view>
+        <view class="empty-text">暂无歌曲</view>
+        <view class="empty-desc">点击下方按钮添加歌曲</view>
+      </view>
+
+      <!-- 歌曲列表 -->
+      <view wx:else class="song-list">
+        <view wx:for="{{songs}}" wx:key="id" class="song-item">
+          <view class="song-number">{{index + 1}}</view>
+          <view class="song-card">
+            <view class="song-info">
+              <view class="song-name">{{item.name}}</view>
+              <view class="song-artist">{{item.artist}}</view>
             </view>
-            <view class="action-btn more-btn" bindtap="showActionMenu" data-song-id="{{item.id}}" data-index="{{index}}">
-              <text class="btn-icon">⋯</text>
+            <view class="song-actions">
+              <view class="action-btn sort-btn" bindtap="sortSong" data-index="{{index}}">
+                <icon name="sort" size="24rpx" color="#5C5143" />
+              </view>
+              <view class="action-btn more-btn" bindtap="showActionMenu" data-song-id="{{item.id}}" data-index="{{index}}">
+                <icon name="more" size="24rpx" color="#5C5143" />
+              </view>
             </view>
           </view>
         </view>
@@ -42,43 +64,49 @@
   </view>
 </scroll-view>
 
-<!-- 添加歌曲按钮 -->
-<view class="add-btn-container">
-  <view class="add-btn" bindtap="showAddSongModal">
-    <text class="add-icon">+</text>
-  </view>
+<!-- 添加歌曲悬浮按钮 -->
+<view class="fab-btn" bindtap="showAddSongModal">
+  <icon name="plus" size="48rpx" color="#FFFFFF" />
 </view>
 
 <!-- 开始街唱按钮 -->
-<view class="start-btn-container">
+<view class="bottom-bar">
   <button class="start-btn" bindtap="startSinging" disabled="{{songs.length === 0}}">
-    开始街唱
+    <icon name="mic" size="32rpx" color="#FFFFFF" />
+    <text>开始街唱</text>
   </button>
 </view>
 
 <!-- 添加歌曲模态框 -->
 <view class="modal {{showAddModal ? 'show' : ''}}" bindtap="hideAddSongModal">
   <view class="modal-content" catchtap="stopPropagation">
-    <view class="modal-title">添加歌曲</view>
+    <view class="modal-header">
+      <view class="modal-title">添加歌曲</view>
+      <view class="modal-close" bindtap="hideAddSongModal">
+        <icon name="close" size="32rpx" color="#8B7D6B" />
+      </view>
+    </view>
     <view class="modal-body">
-      <input class="modal-input"
-             placeholder="歌曲名称"
-             value="{{newSong.name}}"
-             bindinput="onSongInputChange"
-             data-field="name"/>
-      <input class="modal-input"
-             placeholder="歌手"
-             value="{{newSong.artist}}"
-             bindinput="onSongInputChange"
-             data-field="artist"/>
+      <view class="input-group">
+        <view class="input-label">歌曲名称</view>
+        <input class="modal-input"
+               placeholder="请输入歌曲名称"
+               value="{{newSong.name}}"
+               bindinput="onSongInputChange"
+               data-field="name"/>
+      </view>
+      <view class="input-group">
+        <view class="input-label">歌手</view>
+        <input class="modal-input"
+               placeholder="请输入歌手名称"
+               value="{{newSong.artist}}"
+               bindinput="onSongInputChange"
+               data-field="artist"/>
+      </view>
     </view>
     <view class="modal-footer">
-      <button class="modal-btn cancel-btn" bindtap="hideAddSongModal">
-        取消
-      </button>
-      <button class="modal-btn confirm-btn" bindtap="addSong">
-        确定
-      </button>
+      <button class="modal-btn cancel-btn" bindtap="hideAddSongModal">取消</button>
+      <button class="modal-btn confirm-btn" bindtap="addSong">确定</button>
     </view>
   </view>
 </view>
@@ -86,14 +114,15 @@
 <!-- 操作菜单 -->
 <view class="action-menu {{showMenu ? 'show' : ''}}" bindtap="hideActionMenu">
   <view class="menu-content" catchtap="stopPropagation">
+    <view class="menu-header">歌曲操作</view>
     <view class="menu-item" bindtap="editSong">
-      <text class="menu-icon">✏️</text>
-      <text>修改</text>
+      <icon name="edit" size="32rpx" color="#5C5143" />
+      <text>修改歌曲</text>
     </view>
     <view class="menu-divider"></view>
     <view class="menu-item delete" bindtap="deleteSong">
-      <text class="menu-icon">🗑️</text>
-      <text>删除</text>
+      <icon name="delete" size="32rpx" color="#E07A5F" />
+      <text>删除歌曲</text>
     </view>
   </view>
 </view>
@@ -103,19 +132,19 @@
   <view class="menu-content" catchtap="stopPropagation">
     <view class="menu-header">调整顺序</view>
     <view class="menu-item" bindtap="moveToTop">
-      <text class="menu-icon">⬆️</text>
+      <icon name="arrow-top" size="32rpx" color="#5C5143" />
       <text>置顶</text>
     </view>
     <view class="menu-item" bindtap="moveUp">
-      <text class="menu-icon">↑</text>
+      <icon name="arrow-up" size="32rpx" color="#5C5143" />
       <text>上移</text>
     </view>
     <view class="menu-item" bindtap="moveDown">
-      <text class="menu-icon">↓</text>
+      <icon name="arrow-down" size="32rpx" color="#5C5143" />
       <text>下移</text>
     </view>
     <view class="menu-item" bindtap="moveToBottom">
-      <text class="menu-icon">⬇️</text>
+      <icon name="arrow-bottom" size="32rpx" color="#5C5143" />
       <text>置底</text>
     </view>
   </view>
@@ -124,20 +153,46 @@
 <!-- 编辑歌单名称模态框 -->
 <view class="modal {{showEditModal ? 'show' : ''}}" bindtap="hideEditModal">
   <view class="modal-content" catchtap="stopPropagation">
-    <view class="modal-title">修改歌单名称</view>
+    <view class="modal-header">
+      <view class="modal-title">修改歌单名称</view>
+      <view class="modal-close" bindtap="hideEditModal">
+        <icon name="close" size="32rpx" color="#8B7D6B" />
+      </view>
+    </view>
     <view class="modal-body">
-      <input class="modal-input"
-             placeholder="请输入歌单名称"
-             value="{{editPlaylistName}}"
-             bindinput="onEditNameChange"/>
+      <view class="input-group">
+        <view class="input-label">歌单名称</view>
+        <input class="modal-input"
+               placeholder="请输入歌单名称"
+               value="{{editPlaylistName}}"
+               bindinput="onEditNameChange"/>
+      </view>
     </view>
     <view class="modal-footer">
-      <button class="modal-btn cancel-btn" bindtap="hideEditModal">
-        取消
-      </button>
-      <button class="modal-btn confirm-btn" bindtap="confirmEditName">
-        确定
-      </button>
+      <button class="modal-btn cancel-btn" bindtap="hideEditModal">取消</button>
+      <button class="modal-btn confirm-btn" bindtap="confirmEditName">确定</button>
+    </view>
+  </view>
+</view>
+
+<!-- 删除确认模态框 -->
+<view class="modal {{showDeleteModal ? 'show' : ''}}" bindtap="hideDeleteModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <view class="modal-title">删除歌单</view>
+      <view class="modal-close" bindtap="hideDeleteModal">
+        <icon name="close" size="32rpx" color="#8B7D6B" />
+      </view>
+    </view>
+    <view class="modal-body">
+      <view class="delete-warning">
+        <icon name="warning" size="64rpx" color="#E07A5F" />
+        <text class="warning-text">确定要删除这个歌单吗？此操作不可撤销。</text>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel-btn" bindtap="hideDeleteModal">取消</button>
+      <button class="modal-btn confirm-btn danger" bindtap="confirmDeletePlaylist">删除</button>
     </view>
   </view>
 </view>

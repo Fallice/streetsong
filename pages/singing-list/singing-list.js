@@ -1,6 +1,7 @@
 // 观众点歌列表页面 singing-list.js
 const util = require('../../utils/util.js')
 const data = require('../../utils/data.js')
+const db = require('../../utils/database.js')
 
 Page({
   data: {
@@ -8,24 +9,45 @@ Page({
     playlist: null,
     singingList: [],
     currentSong: null,
+    nextSong: null,
     userLikes: {},
     hasOrderedSong: false,
-    showPointModal: false,
-    pointSong: {
-      name: '',
-      artist: '',
-      message: ''
-    },
-    searchKeyword: '',
-    showSearch: false
+    orderedSongIds: [], // 已点歌曲ID列表
+    // 演出状态
+    hasPerformance: false,
+    performance: null,
+    singerId: '',
+    singerName: '',
+    isLoading: true
   },
 
   onLoad(options) {
+    // 检测是否为开发模式
+    const accountInfo = wx.getAccountInfoSync()
+    const isDevMode = accountInfo.miniProgram.envVersion === 'develop'
+    this.setData({ isDevMode })
+
+    console.log('singing-list onLoad 参数:', options)
+
     // 如果是扫码进入
     if (options.playlistId) {
       this.setData({
         playlistId: options.playlistId
       })
+
+      // 从扫码进入的提示
+      if (options.fromScan) {
+        wx.showToast({
+          title: '扫码进入成功',
+          icon: 'success',
+          duration: 2000
+        })
+      }
+
+      // 开发模式下，如果是模拟扫码，显示调试信息
+      if (isDevMode && options.simulated) {
+        console.log('模拟扫码进入，歌单ID:', options.playlistId)
+      }
     } else {
       // 演示模式，使用第一个歌单
       const playlists = data.getPlaylists()
@@ -43,10 +65,13 @@ Page({
   },
 
   onShow() {
+    // 每次显示页面时检查演出状态
+    this.checkPerformanceStatus()
+
     // 定时刷新列表
     this.pollingTimer = setInterval(() => {
       this.refreshSingingList()
-    }, 5000)
+    }, 3000)
   },
 
   onHide() {
@@ -62,35 +87,262 @@ Page({
   },
 
   // 初始化页面
-  initPage() {
-    const playlist = data.getPlaylistById(this.data.playlistId)
-    if (!playlist) {
-      util.showToast('歌单不存在')
-      return
+  async initPage() {
+    wx.showLoading({ title: '加载中...' })
+
+    console.log('=== initPage 开始 ===')
+    console.log('歌单ID:', this.data.playlistId)
+
+    try {
+      // 先尝试从本地存储获取（歌手自己的手机）
+      let playlist = data.getPlaylistById(this.data.playlistId)
+      console.log('本地歌单查询结果:', playlist)
+
+      // 如果本地没有，从云数据库获取
+      if (!playlist) {
+        console.log('本地未找到歌单，从云端获取')
+        playlist = await this.getPlaylistFromCloud(this.data.playlistId)
+        console.log('云端歌单查询结果:', playlist)
+      }
+
+      if (!playlist) {
+        console.error('无法获取歌单')
+        util.showToast('歌单不存在')
+        wx.hideLoading()
+        return
+      }
+
+      console.log('使用歌单数据:', playlist)
+
+      this.setData({
+        playlist: playlist,
+        singerId: playlist.userId || '1',
+        singerName: playlist.userName || playlist.singerName || '歌手',
+        isLoading: false
+      })
+
+      wx.hideLoading()
+
+      // 检查演出状态
+      this.checkPerformanceStatus()
+    } catch (error) {
+      console.error('初始化页面失败:', error)
+      wx.hideLoading()
+      util.showToast('加载失败')
+    }
+  },
+
+  // 从云数据库获取歌单
+  async getPlaylistFromCloud(playlistId) {
+    try {
+      console.log('=== 调用云函数获取歌单 ===')
+      console.log('输入 playlistId:', playlistId)
+
+      // 方式1：先尝试完整ID
+      let result = await wx.cloud.callFunction({
+        name: 'api',
+        data: {
+          action: 'getPlaylist',
+          data: {
+            playlistId: playlistId
+          }
+        }
+      })
+
+      console.log('方式1结果:', result)
+
+      // 如果方式1没找到，尝试方式2：用短ID查询
+      if (!result.result?.success || !result.result?.data) {
+        console.log('方式1失败，尝试方式2：短ID模糊查询')
+        result = await wx.cloud.callFunction({
+          name: 'api',
+          data: {
+            action: 'findPlaylistBySuffix',
+            data: {
+              suffix: playlistId
+            }
+          }
+        })
+        console.log('方式2结果:', result)
+      }
+
+      if (result.result && result.result.success && result.result.data) {
+        const playlist = result.result.data
+        console.log('✅ 找到歌单:', playlist)
+        // 确保歌单数据格式一致
+        return {
+          id: playlist.id || playlist._id,
+          name: playlist.name,
+          userId: playlist.userId,
+          userName: playlist.userName || '歌手',
+          songs: playlist.data?.songs || playlist.songs || [],
+          createTime: playlist.createdAt ? new Date(playlist.createdAt).getTime() : Date.now()
+        }
+      } else {
+        console.error('❌ 两种方式都没找到歌单')
+        return null
+      }
+    } catch (error) {
+      console.error('从云端获取歌单失败:', error)
+      return null
+    }
+  },
+
+  // 检查演出状态
+  async checkPerformanceStatus() {
+    const { playlistId } = this.data
+
+    console.log('检查演出状态，歌单ID:', playlistId)
+
+    // 先从本地存储获取
+    let performance = data.getCurrentPerformance()
+
+    // 如果本地没有，尝试从云端获取
+    if (!performance) {
+      console.log('本地未找到演出信息，尝试从云端获取')
+      performance = await this.getPerformanceFromCloud(playlistId)
     }
 
-    // 获取或初始化演唱列表
-    let singingList = data.getSingingList()
-    if (!singingList || singingList.length === 0) {
-      singingList = [...playlist.songs]
-      data.setSingingList(singingList)
-    }
+    console.log('当前演出信息:', performance)
 
-    this.setData({
-      playlist: playlist,
-      singingList: singingList,
-      currentSong: singingList[0] || null
-    })
+    // 检查是否是当前歌单的演出
+    const hasOngoingPerformance = performance &&
+                                   performance.status === 'ongoing' &&
+                                   performance.playlistId === playlistId
+
+    console.log('是否有进行中的演出:', hasOngoingPerformance)
+
+    if (hasOngoingPerformance) {
+      // 演出进行中
+      const singingList = performance.singingList || []
+
+      // 检查是否是新的演出（与之前不同的演出ID）
+      const previousPerformanceId = wx.getStorageSync('previousPerformanceId')
+      if (performance.id !== previousPerformanceId) {
+        // 新演出，清空点歌记录
+        wx.setStorageSync('orderedSongs', [])
+        wx.setStorageSync('previousPerformanceId', performance.id)
+        // 清空点赞记录
+        wx.setStorageSync('userLikes', {})
+        this.setData({
+          hasOrderedSong: false,
+          orderedSongIds: [],
+          userLikes: {}
+        })
+      } else {
+        // 同一演出，恢复点歌记录和点赞记录
+        const orderedSongs = wx.getStorageSync('orderedSongs') || []
+        const userLikes = wx.getStorageSync('userLikes') || {}
+        this.setData({
+          hasOrderedSong: orderedSongs.length > 0,
+          orderedSongIds: orderedSongs.map(s => s.id),
+          userLikes: userLikes
+        })
+      }
+
+      this.setData({
+        hasPerformance: true,
+        performance: performance,
+        singingList: singingList,
+        currentSong: singingList[0] || null,
+        nextSong: singingList[1] || null,
+        singerId: performance.singerId || this.data.singerId,
+        singerName: performance.singerName || this.data.singerName
+      })
+
+      wx.showToast({
+        title: '进入演出成功',
+        icon: 'success'
+      })
+    } else {
+      // 没有演出或演出已结束
+      this.setData({
+        hasPerformance: false,
+        performance: null,
+        singingList: [],
+        currentSong: null,
+        nextSong: null
+      })
+
+      // 显示调试信息
+      if (performance) {
+        console.log('演出状态不匹配:', {
+          performanceStatus: performance.status,
+          performancePlaylistId: performance.playlistId,
+          currentPlaylistId: playlistId
+        })
+      }
+    }
+  },
+
+  // 从云数据库获取演出信息
+  async getPerformanceFromCloud(playlistId) {
+    try {
+      const result = await wx.cloud.callFunction({
+        name: 'api',
+        data: {
+          action: 'getPerformancesByPlaylistId',
+          data: {
+            playlistId: playlistId
+          }
+        }
+      })
+
+      if (result.result && result.result.success) {
+        const performances = result.result.data || []
+        // 找到进行中的演出
+        const ongoing = performances.find(p => p.status === 'ongoing')
+        if (ongoing) {
+          return {
+            id: ongoing.id || ongoing._id,
+            playlistId: ongoing.playlistId,
+            singerId: ongoing.userId || ongoing.singerId,
+            singerName: ongoing.singerName,
+            status: ongoing.status,
+            singingList: ongoing.singingList || [],
+            title: ongoing.title || '演出中'
+          }
+        }
+      }
+      return null
+    } catch (error) {
+      console.error('从云端获取演出失败:', error)
+      return null
+    }
   },
 
   // 刷新演唱列表
   refreshSingingList() {
-    const singingList = data.getSingingList()
-    if (singingList && singingList.length > 0) {
-      this.setData({
-        singingList: singingList,
-        currentSong: singingList[0] || null
-      })
+    const { hasPerformance, performance } = this.data
+
+    if (hasPerformance && performance) {
+      // 获取最新的演出数据
+      const currentPerformance = data.getCurrentPerformance()
+
+      if (currentPerformance && currentPerformance.id === performance.id) {
+        const singingList = currentPerformance.singingList || []
+        if (singingList.length !== this.data.singingList.length) {
+          this.setData({
+            singingList: singingList,
+            currentSong: singingList[0] || null,
+            nextSong: singingList[1] || null
+          })
+        }
+      } else {
+        // 演出已结束
+        this.setData({
+          hasPerformance: false,
+          performance: null,
+          singingList: [],
+          currentSong: null,
+          nextSong: null
+        })
+
+        wx.showToast({
+          title: '演出已结束',
+          icon: 'none'
+        })
+      }
     }
   },
 
@@ -98,8 +350,9 @@ Page({
   likeSong(e) {
     const { index, songId } = e.currentTarget.dataset
 
-    if (index < 2) {
-      util.showToast('前两首歌曲不能点赞哦')
+    // 检查是否正在演出
+    if (!this.data.hasPerformance) {
+      util.showToast('当前没有演出')
       return
     }
 
@@ -115,7 +368,7 @@ Page({
     const song = singingList[index]
     song.priority = (song.priority || 0) + 1
 
-    // 重新排序（保持前两首不变，后面的按爱心数排序）
+    // 重新排序（保持前两首不变，后面的按爱心数排序，相同爱心数按添加时间）
     const firstTwo = singingList.slice(0, 2)
     const rest = singingList.slice(2).sort((a, b) => {
       if (b.priority !== a.priority) {
@@ -125,10 +378,14 @@ Page({
     })
 
     const newList = [...firstTwo, ...rest]
-    data.setSingingList(newList)
+
+    // 更新演出的演唱列表
+    data.updatePerformanceSingingList(newList)
 
     // 记录用户点赞
     userLikes[songId] = true
+    // 存储到本地存储
+    wx.setStorageSync('userLikes', userLikes)
     this.setData({
       singingList: newList,
       userLikes
@@ -137,71 +394,79 @@ Page({
     util.showToast('支持成功！')
   },
 
-  // 显示点歌模态框
-  showPointModal() {
+  // 跳转到点歌页面
+  goToPointSongPage() {
     if (this.data.hasOrderedSong) {
       util.showToast('本场演出您已经点过歌了')
       return
     }
 
-    this.setData({
-      showPointModal: true
-    })
-  },
-
-  // 关闭点歌模态框
-  hidePointModal() {
-    this.setData({
-      showPointModal: false,
-      pointSong: {
-        name: '',
-        artist: '',
-        message: ''
-      }
-    })
-  },
-
-  // 输入点歌信息
-  onPointInputChange(e) {
-    const { field } = e.currentTarget.dataset
-    this.setData({
-      [`pointSong.${field}`]: e.detail.value
-    })
-  },
-
-  // 提交点歌
-  submitPointSong() {
-    const { pointSong, singingList } = this.data
-
-    if (!pointSong.name || !pointSong.name.trim()) {
-      util.showToast('请输入歌曲名称')
+    // 检查是否有演出
+    if (!this.data.hasPerformance) {
+      util.showToast('当前没有演出')
       return
     }
 
-    if (!pointSong.artist || !pointSong.artist.trim()) {
-      util.showToast('请输入歌手名称')
+    // 存储当前歌手信息到本地，供点歌页面使用
+    const singerInfo = {
+      id: this.data.singerId || '1',
+      name: this.data.singerName || '歌手',
+      performanceId: this.data.performance ? this.data.performance.id : ''
+    }
+    wx.setStorageSync('currentSinger', singerInfo)
+
+    wx.navigateTo({
+      url: `/pages/point-song/point-song?playlistId=${this.data.playlistId}&hasOrderedSong=${this.data.hasOrderedSong}`
+    })
+  },
+
+  // 开发模式：开始模拟演出
+  startSimulatedPerformance() {
+    const { playlist, playlistId } = this.data
+    if (!playlist || !playlist.songs || playlist.songs.length === 0) {
+      util.showToast('歌单为空，无法开始演出')
       return
     }
 
-    // 添加到演唱列表
-    const newSong = {
-      id: util.generateId(),
-      name: pointSong.name.trim(),
-      artist: pointSong.artist.trim(),
-      message: pointSong.message,
-      priority: 1,
-      addTime: Date.now()
+    // 获取用户信息
+    const userInfo = wx.getStorageSync('userInfo') || {
+      id: 'simulated_user',
+      nickname: '模拟歌手',
+      nickName: '模拟歌手'
     }
 
-    const newList = [...singingList, newSong]
-    data.setSingingList(newList)
+    // 创建演出
+    const performance = data.createPerformance(
+      playlistId,
+      userInfo.id || 'simulated_user',
+      userInfo.nickname || userInfo.nickName || '模拟歌手'
+    )
 
-    this.setData({
-      singingList: newList,
-      hasOrderedSong: true
+    if (performance) {
+      // 设置演唱列表
+      data.updatePerformanceSingingList(playlist.songs)
+
+      // 刷新状态
+      this.checkPerformanceStatus()
+
+      wx.showToast({
+        title: '模拟演出已开始',
+        icon: 'success'
+      })
+    } else {
+      util.showToast('创建演出失败')
+    }
+  },
+
+  // 开发模式：显示调试信息
+  showDebugInfo() {
+    const { playlistId, hasPerformance, performance } = this.data
+    const currentPerf = data.getCurrentPerformance()
+
+    wx.showModal({
+      title: '调试信息',
+      content: `歌单ID: ${playlistId}\n演出状态: ${hasPerformance ? '进行中' : '无'}\n当前演出歌单: ${currentPerf ? currentPerf.playlistId : '无'}\n演出ID: ${performance ? performance.id : '无'}`,
+      showCancel: false
     })
-
-    this.hidePointModal()
-    util.showToast('点歌成功！')
   }
 })

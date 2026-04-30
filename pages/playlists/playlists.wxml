@@ -2,45 +2,64 @@
 
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
+    <!-- 页面标题 -->
+    <view class="page-header">
+      <view class="header-title">我的歌单</view>
+      <view class="header-desc">管理和创建你的街唱歌单</view>
+    </view>
+
     <!-- 空状态 -->
     <view wx:if="{{playlists.length === 0}}" class="empty-state">
-      <view class="empty-icon">🎵</view>
+      <view class="empty-icon">
+        <view class="icon-bg">
+          <icon name="music" size="72rpx" color="#D4A574" />
+        </view>
+      </view>
       <view class="empty-text">还没有歌单</view>
       <view class="empty-desc">创建你的第一个街唱歌单</view>
       <button class="create-btn" bindtap="createPlaylist">
-        创建歌单
+        <icon name="plus" size="36rpx" color="#FFFFFF" />
+        <text>创建歌单</text>
       </button>
     </view>
 
     <!-- 歌单列表 -->
     <view wx:else class="playlist-list">
-      <view wx:for="{{playlists}}" wx:key="id" class="playlist-card">
+      <view wx:for="{{playlists}}" wx:key="id" class="playlist-card {{item.isSinging ? 'singing' : ''}}">
         <view class="playlist-main" bindtap="viewPlaylistDetail" data-playlist-id="{{item.id}}">
           <view class="playlist-cover">
-            <view class="cover-icon">🎼</view>
+            <icon class="cover-icon" name="note" size="44rpx" color="#FFFFFF" />
+            <!-- 演唱中标记 -->
+            <view class="singing-badge" wx:if="{{item.isSinging}}">
+              <icon name="mic" size="20rpx" color="#FFFFFF" />
+              <text class="singing-text">演唱中</text>
+            </view>
           </view>
-          <view class="playlist-content">
+          <view class="playlist-info">
             <view class="playlist-name">{{item.name}}</view>
-            <view class="song-count">{{item.songs.length}} 首歌</view>
+            <view class="playlist-meta">
+              <text>{{item.songs.length}} 首歌曲</text>
+              <text class="singing-status" wx:if="{{item.isSinging}}">· 正在演唱</text>
+            </view>
           </view>
-          <view class="arrow">
-            <text class="arrow-icon">›</text>
-          </view>
+          <icon class="arrow-icon" name="arrow-right" size="40rpx" color="#B5A99A" />
         </view>
         <view class="playlist-actions">
           <view class="action-btn qr-btn" catchtap="showPlaylistQR" data-playlist-id="{{item.id}}" data-playlist-name="{{item.name}}">
-            <text class="action-icon">📱</text>
+            <icon name="qr" size="32rpx" color="#8B7D6B" />
           </view>
         </view>
       </view>
     </view>
+
+    <!-- 创建歌单按钮 - 无论是否有歌单都显示 -->
+    <view class="create-playlist-section">
+      <view class="playlist-card create-playlist-card">
+        <button class="create-btn" bindtap="createPlaylist">
+          <icon name="plus" size="32rpx" color="#D4A574" />
+          <text>创建歌单</text>
+        </button>
+      </view>
+    </view>
   </view>
 </scroll-view>
-
-<!-- 底部创建歌单按钮 -->
-<view wx:if="{{playlists.length > 0}}" class="footer">
-  <button class="create-btn" bindtap="createPlaylist">
-    <text class="btn-icon">+</text>
-    创建歌单
-  </button>
-</view>

@@ -16,24 +16,43 @@ page {
   padding-bottom: 180rpx;
 }
 
+/* ===== 页面头部 ===== */
+.page-header {
+  margin-bottom: 32rpx;
+}
+
+.header-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #2C2419;
+  margin-bottom: 8rpx;
+}
+
+.header-desc {
+  font-size: 26rpx;
+  color: #8B7D6B;
+}
+
 /* ===== 空状态 ===== */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 120rpx 40rpx;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
-  border-radius: 24rpx;
-  box-shadow:
-    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
-    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
-  margin-top: 40rpx;
+  padding: 160rpx 40rpx;
 }
 
 .empty-icon {
-  font-size: 100rpx;
-  margin-bottom: 24rpx;
-  opacity: 0.7;
+  margin-bottom: 32rpx;
+}
+
+.icon-bg {
+  width: 160rpx;
+  height: 160rpx;
+  background: linear-gradient(135deg, #F5F0E8 0%, #E8E0D4 100%);
+  border-radius: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .empty-text {
@@ -46,11 +65,15 @@ page {
 .empty-desc {
   font-size: 28rpx;
   color: #8B7D6B;
-  margin-bottom: 40rpx;
+  margin-bottom: 48rpx;
 }
 
 /* ===== 创建按钮 ===== */
 .create-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
   width: 280rpx;
   height: 88rpx;
   background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
@@ -58,11 +81,8 @@ page {
   border-radius: 44rpx;
   font-size: 30rpx;
   font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: none;
-  box-shadow: 0 4rpx 16rpx rgba(212, 165, 116, 0.4);
+  box-shadow: 0 8rpx 24rpx rgba(212, 165, 116, 0.4);
   transition: all 0.3s ease;
 }
 
@@ -72,13 +92,13 @@ page {
 
 .create-btn:active {
   transform: scale(0.98);
-  box-shadow: 0 2rpx 8rpx rgba(212, 165, 116, 0.3);
+  box-shadow: 0 4rpx 16rpx rgba(212, 165, 116, 0.3);
 }
 
 .btn-icon {
-  font-size: 36rpx;
-  margin-right: 12rpx;
-  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ===== 歌单列表 ===== */
@@ -91,93 +111,124 @@ page {
 .playlist-card {
   display: flex;
   align-items: center;
-  padding: 20rpx 20rpx 20rpx 32rpx;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FFFCF8 100%);
+  background: #FFFFFF;
   border-radius: 24rpx;
-  box-shadow:
-    0 4rpx 20rpx rgba(212, 165, 116, 0.08),
-    0 1rpx 4rpx rgba(44, 36, 25, 0.04);
-  transition: all 0.3s ease;
+  padding: 8rpx;
+  box-shadow: 0 4rpx 16rpx rgba(44, 36, 25, 0.06);
+  transition: all 0.2s ease;
+}
+
+.playlist-card:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 2rpx 8rpx rgba(44, 36, 25, 0.04);
 }
 
 .playlist-main {
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 8rpx 0;
-}
-
-.playlist-card:active {
-  transform: translateY(2rpx);
-  box-shadow:
-    0 2rpx 12rpx rgba(212, 165, 116, 0.06),
-    0 1rpx 2rpx rgba(44, 36, 25, 0.02);
+  padding: 16rpx 16rpx 16rpx 24rpx;
 }
 
 /* 歌单封面 */
 .playlist-cover {
   width: 88rpx;
   height: 88rpx;
-  border-radius: 16rpx;
   background: linear-gradient(135deg, #E8C9A0 0%, #D4A574 100%);
+  border-radius: 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 24rpx;
   flex-shrink: 0;
-  box-shadow: 0 4rpx 12rpx rgba(212, 165, 116, 0.3);
+  position: relative;
+  overflow: visible;
 }
 
 .cover-icon {
-  font-size: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 歌单内容 */
-.playlist-content {
+/* 演唱中标记 */
+.singing-badge {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  background: linear-gradient(135deg, #E07A5F 0%, #C96A52 100%);
+  border-radius: 24rpx;
+  padding: 8rpx 16rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  box-shadow: 0 6rpx 20rpx rgba(224, 122, 95, 0.5);
+  animation: pulse 1.5s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.singing-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.singing-text {
+  font-size: 20rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+/* 演唱中卡片样式 */
+.playlist-card.singing {
+  border: 3rpx solid rgba(224, 122, 95, 0.5);
+  box-shadow: 0 4rpx 24rpx rgba(224, 122, 95, 0.2);
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF8F5 100%);
+}
+
+.singing-status {
+  color: #E07A5F;
+  font-weight: 600;
+  margin-left: 12rpx;
+  font-size: 26rpx;
+}
+
+/* 歌单信息 */
+.playlist-info {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 8rpx;
 }
 
 .playlist-name {
   font-size: 32rpx;
   color: #2C2419;
   font-weight: 600;
-  margin-bottom: 8rpx;
 }
 
-.song-count {
+.playlist-meta {
   font-size: 26rpx;
   color: #8B7D6B;
 }
 
 /* 箭头 */
-.arrow {
-  margin-left: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .arrow-icon {
-  font-size: 40rpx;
-  color: #B5A99A;
-  font-weight: 300;
-  transition: transform 0.2s ease;
+  margin-left: 16rpx;
 }
 
-.playlist-card:active .arrow-icon {
-  transform: translateX(4rpx);
-  color: #D4A574;
-}
-
-/* 歌单操作按钮 */
+/* 操作按钮区域 */
 .playlist-actions {
   display: flex;
   align-items: center;
-  margin-left: 16rpx;
   padding-left: 16rpx;
   border-left: 2rpx solid #F0EBE3;
+  margin-right: 8rpx;
 }
 
 .action-btn {
@@ -186,38 +237,56 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #E8C9A0 0%, #D4A574 100%);
+  background: #F5F0E8;
   border-radius: 16rpx;
   transition: all 0.2s ease;
-  box-shadow: 0 4rpx 12rpx rgba(212, 165, 116, 0.3);
 }
 
 .action-btn:active {
-  background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  background: #E8C9A0;
   transform: scale(0.95);
-  box-shadow: 0 2rpx 8rpx rgba(212, 165, 116, 0.2);
 }
 
 .qr-btn .action-icon {
-  font-size: 36rpx;
-  line-height: 1;
-}
-
-/* ===== 底部按钮区域 ===== */
-.footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 32rpx 48rpx;
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, transparent 0%, #FAF7F2 30%);
   display: flex;
+  align-items: center;
   justify-content: center;
-  z-index: 10;
 }
 
-.footer .create-btn {
+/* ===== 创建歌单按钮区域 ===== */
+.create-playlist-section {
+  margin-top: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.create-playlist-card {
+  justify-content: center;
+  padding: 32rpx;
+}
+
+.create-playlist-card .create-btn {
   width: 100%;
-  max-width: 600rpx;
+  height: 72rpx;
+  background: transparent;
+  color: #D4A574;
+  border: 2rpx dashed #D4A574;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  box-shadow: none;
+  transition: all 0.3s ease;
+}
+
+.create-playlist-card .create-btn::after {
+  border: none;
+}
+
+.create-playlist-card .create-btn:active {
+  background: rgba(212, 165, 116, 0.1);
+  transform: scale(0.98);
+  box-shadow: none;
 }

@@ -2,11 +2,13 @@
 const util = require('../../utils/util.js')
 const data = require('../../utils/data.js')
 const db = require('../../utils/database.js')
-const app = getApp()
+const cloudApi = require('../../utils/cloudApi.js')
 
 Page({
   data: {
     playlistId: '',
+    performanceId: '',
+    singerId: '',
     searchText: '',
     songLibrary: [],
     filteredSongs: [],
@@ -15,285 +17,190 @@ Page({
     selectedSong: {},
     pointMessage: '',
     hasOrderedSong: false,
-    currentUser: null,
-    performanceId: null
+    orderedSongIds: [],
+    hasPerformance: false
   },
 
   onLoad(options) {
+    // 获取已点歌记录
+    const orderedSongs = wx.getStorageSync('orderedSongs') || []
+    const orderedSongIds = orderedSongs.map(s => s.id)
+
     if (options.playlistId) {
       this.setData({
         playlistId: options.playlistId,
-        hasOrderedSong: options.hasOrderedSong === 'true'
+        hasOrderedSong: options.hasOrderedSong === 'true',
+        orderedSongIds: orderedSongIds
       })
     }
 
-    // 获取用户信息
-    app.getUserInfo().then(userInfo => {
+    // 获取当前歌手信息
+    const currentSinger = wx.getStorageSync('currentSinger')
+    if (currentSinger) {
       this.setData({
-        currentUser: userInfo
+        singerId: currentSinger.id || '1',
+        performanceId: currentSinger.performanceId || ''
       })
+    }
 
-      // 获取演出ID
-      const ongoingPerformances = db.PerformanceDB.getOngoingPerformances()
-      if (ongoingPerformances.length > 0) {
-        this.setData({
-          performanceId: ongoingPerformances[0].id
-        })
-      }
-    })
+    // 检查演出状态
+    this.checkPerformanceStatus()
 
-    this.initSongLibrary()
+    // 初始化曲库
+    this.initSongLibraryFromUserLibrary()
   },
 
-  // 初始化曲库
-  initSongLibrary() {
-    // 模拟歌手曲库数据
-    const songLibrary = [
-      { id: '1', name: '七里香', artist: '周杰伦' },
-      { id: '2', name: '晴天', artist: '周杰伦' },
-      { id: '3', name: '回到过去', artist: '周杰伦' },
-      { id: '4', name: '我不配', artist: '周杰伦' },
-      { id: '5', name: '稻香', artist: '周杰伦' },
-      { id: '6', name: '告白气球', artist: '周杰伦' },
-      { id: '7', name: '青花瓷', artist: '周杰伦' },
-      { id: '8', name: '夜曲', artist: '周杰伦' },
-      { id: '9', name: '以父之名', artist: '周杰伦' },
-      { id: '10', name: '双截棍', artist: '周杰伦' },
-      { id: '11', name: '东风破', artist: '周杰伦' },
-      { id: '12', name: '发如雪', artist: '周杰伦' },
-      { id: '13', name: '千里之外', artist: '周杰伦' },
-      { id: '14', name: '菊花台', artist: '周杰伦' },
-      { id: '15', name: '霍元甲', artist: '周杰伦' },
-      { id: '16', name: '本草纲目', artist: '周杰伦' },
-      { id: '17', name: '听妈妈的话', artist: '周杰伦' },
-      { id: '18', name: '夜的第七章', artist: '周杰伦' },
-      { id: '19', name: '红尘客栈', artist: '周杰伦' },
-      { id: '20', name: '明明就', artist: '周杰伦' },
-      { id: '21', name: '手写的从前', artist: '周杰伦' },
-      { id: '22', name: '说好的幸福呢', artist: '周杰伦' },
-      { id: '23', name: '烟花易冷', artist: '周杰伦' },
-      { id: '24', name: '兰亭序', artist: '周杰伦' },
-      { id: '25', name: '魔术先生', artist: '周杰伦' },
-      { id: '26', name: '乔克叔叔', artist: '周杰伦' },
-      { id: '27', name: '时光机', artist: '周杰伦' },
-      { id: '28', name: '龙战骑士', artist: '周杰伦' },
-      { id: '29', name: '给我一首歌的时间', artist: '周杰伦' },
-      { id: '30', name: '蛇舞', artist: '周杰伦' },
-      { id: '31', name: '花海', artist: '周杰伦' },
-      { id: '32', name: '说好不哭', artist: '周杰伦' },
-      { id: '33', name: 'Mojito', artist: '周杰伦' },
-      { id: '34', name: '最伟大的作品', artist: '周杰伦' },
-      { id: '35', name: '等你下课', artist: '周杰伦' },
-      { id: '36', name: '不爱我就拉倒', artist: '周杰伦' },
-      { id: '37', name: '说好的幸福呢', artist: '周杰伦' },
-      { id: '38', name: '稻香', artist: '周杰伦' },
-      { id: '39', name: '青花瓷', artist: '周杰伦' },
-      { id: '40', name: '告白气球', artist: '周杰伦' },
-      { id: '41', name: '七里香', artist: '周杰伦' },
-      { id: '42', name: '晴天', artist: '周杰伦' },
-      { id: '43', name: '回到过去', artist: '周杰伦' },
-      { id: '44', name: '我不配', artist: '周杰伦' },
-      { id: '45', name: '夜曲', artist: '周杰伦' },
-      { id: '46', name: '以父之名', artist: '周杰伦' },
-      { id: '47', name: '双截棍', artist: '周杰伦' },
-      { id: '48', name: '东风破', artist: '周杰伦' },
-      { id: '49', name: '发如雪', artist: '周杰伦' },
-      { id: '50', name: '千里之外', artist: '周杰伦' },
-      { id: '51', name: '菊花台', artist: '周杰伦' },
-      { id: '52', name: '霍元甲', artist: '周杰伦' },
-      { id: '53', name: '本草纲目', artist: '周杰伦' },
-      { id: '54', name: '听妈妈的话', artist: '周杰伦' },
-      { id: '55', name: '夜的第七章', artist: '周杰伦' },
-      { id: '56', name: '红尘客栈', artist: '周杰伦' },
-      { id: '57', name: '明明就', artist: '周杰伦' },
-      { id: '58', name: '手写的从前', artist: '周杰伦' },
-      { id: '59', name: '烟花易冷', artist: '周杰伦' },
-      { id: '60', name: '兰亭序', artist: '周杰伦' },
-      { id: '61', name: '魔术先生', artist: '周杰伦' },
-      { id: '62', name: '乔克叔叔', artist: '周杰伦' },
-      { id: '63', name: '时光机', artist: '周杰伦' },
-      { id: '64', name: '龙战骑士', artist: '周杰伦' },
-      { id: '65', name: '给我一首歌的时间', artist: '周杰伦' },
-      { id: '66', name: '蛇舞', artist: '周杰伦' },
-      { id: '67', name: '花海', artist: '周杰伦' },
-      { id: '68', name: '说好不哭', artist: '周杰伦' },
-      { id: '69', name: 'Mojito', artist: '周杰伦' },
-      { id: '70', name: '最伟大的作品', artist: '周杰伦' },
-      { id: '71', name: '等你下课', artist: '周杰伦' },
-      { id: '72', name: '不爱我就拉倒', artist: '周杰伦' },
-      { id: '73', name: '说好的幸福呢', artist: '周杰伦' },
-      { id: '74', name: '稻香', artist: '周杰伦' },
-      { id: '75', name: '青花瓷', artist: '周杰伦' },
-      { id: '76', name: '告白气球', artist: '周杰伦' },
-      { id: '77', name: '七里香', artist: '周杰伦' },
-      { id: '78', name: '晴天', artist: '周杰伦' },
-      { id: '79', name: '回到过去', artist: '周杰伦' },
-      { id: '80', name: '我不配', artist: '周杰伦' },
-      { id: '81', name: '夜曲', artist: '周杰伦' },
-      { id: '82', name: '以父之名', artist: '周杰伦' },
-      { id: '83', name: '双截棍', artist: '周杰伦' },
-      { id: '84', name: '东风破', artist: '周杰伦' },
-      { id: '85', name: '发如雪', artist: '周杰伦' },
-      { id: '86', name: '千里之外', artist: '周杰伦' },
-      { id: '87', name: '菊花台', artist: '周杰伦' },
-      { id: '88', name: '霍元甲', artist: '周杰伦' },
-      { id: '89', name: '本草纲目', artist: '周杰伦' },
-      { id: '90', name: '听妈妈的话', artist: '周杰伦' },
-      { id: '91', name: '夜的第七章', artist: '周杰伦' },
-      { id: '92', name: '红尘客栈', artist: '周杰伦' },
-      { id: '93', name: '明明就', artist: '周杰伦' },
-      { id: '94', name: '手写的从前', artist: '周杰伦' },
-      { id: '95', name: '烟花易冷', artist: '周杰伦' },
-      { id: '96', name: '兰亭序', artist: '周杰伦' },
-      { id: '97', name: '魔术先生', artist: '周杰伦' },
-      { id: '98', name: '乔克叔叔', artist: '周杰伦' },
-      { id: '99', name: '时光机', artist: '周杰伦' },
-      { id: '100', name: '龙战骑士', artist: '周杰伦' },
-      { id: '101', name: '给我一首歌的时间', artist: '周杰伦' },
-      { id: '102', name: '蛇舞', artist: '周杰伦' },
-      { id: '103', name: '花海', artist: '周杰伦' },
-      { id: '104', name: '说好不哭', artist: '周杰伦' },
-      { id: '105', name: 'Mojito', artist: '周杰伦' },
-      { id: '106', name: '最伟大的作品', artist: '周杰伦' },
-      { id: '107', name: '等你下课', artist: '周杰伦' },
-      { id: '108', name: '不爱我就拉倒', artist: '周杰伦' },
-      { id: '109', name: '说好的幸福呢', artist: '周杰伦' },
-      { id: '110', name: '稻香', artist: '周杰伦' },
-      { id: '111', name: '青花瓷', artist: '周杰伦' },
-      { id: '112', name: '告白气球', artist: '周杰伦' },
-      { id: '113', name: '七里香', artist: '周杰伦' },
-      { id: '114', name: '晴天', artist: '周杰伦' },
-      { id: '115', name: '回到过去', artist: '周杰伦' },
-      { id: '116', name: '我不配', artist: '周杰伦' },
-      { id: '117', name: '夜曲', artist: '周杰伦' },
-      { id: '118', name: '以父之名', artist: '周杰伦' },
-      { id: '119', name: '双截棍', artist: '周杰伦' },
-      { id: '120', name: '东风破', artist: '周杰伦' },
-      { id: '121', name: '发如雪', artist: '周杰伦' },
-      { id: '122', name: '千里之外', artist: '周杰伦' },
-      { id: '123', name: '菊花台', artist: '周杰伦' },
-      { id: '124', name: '霍元甲', artist: '周杰伦' },
-      { id: '125', name: '本草纲目', artist: '周杰伦' },
-      { id: '126', name: '听妈妈的话', artist: '周杰伦' },
-      { id: '127', name: '夜的第七章', artist: '周杰伦' },
-      { id: '128', name: '红尘客栈', artist: '周杰伦' },
-      { id: '129', name: '明明就', artist: '周杰伦' },
-      { id: '130', name: '手写的从前', artist: '周杰伦' },
-      { id: '131', name: '烟花易冷', artist: '周杰伦' },
-      { id: '132', name: '兰亭序', artist: '周杰伦' },
-      { id: '133', name: '魔术先生', artist: '周杰伦' },
-      { id: '134', name: '乔克叔叔', artist: '周杰伦' },
-      { id: '135', name: '时光机', artist: '周杰伦' },
-      { id: '136', name: '龙战骑士', artist: '周杰伦' },
-      { id: '137', name: '给我一首歌的时间', artist: '周杰伦' },
-      { id: '138', name: '蛇舞', artist: '周杰伦' },
-      { id: '139', name: '花海', artist: '周杰伦' },
-      { id: '140', name: '说好不哭', artist: '周杰伦' },
-      { id: '141', name: 'Mojito', artist: '周杰伦' },
-      { id: '142', name: '最伟大的作品', artist: '周杰伦' },
-      { id: '143', name: '等你下课', artist: '周杰伦' },
-      { id: '144', name: '不爱我就拉倒', artist: '周杰伦' },
-      { id: '145', name: '说好的幸福呢', artist: '周杰伦' },
-      { id: '146', name: '稻香', artist: '周杰伦' },
-      { id: '147', name: '青花瓷', artist: '周杰伦' },
-      { id: '148', name: '告白气球', artist: '周杰伦' },
-      { id: '149', name: '七里香', artist: '周杰伦' },
-      { id: '150', name: '晴天', artist: '周杰伦' },
-      { id: '151', name: '回到过去', artist: '周杰伦' },
-      { id: '152', name: '我不配', artist: '周杰伦' },
-      { id: '153', name: '夜曲', artist: '周杰伦' },
-      { id: '154', name: '以父之名', artist: '周杰伦' },
-      { id: '155', name: '双截棍', artist: '周杰伦' },
-      { id: '156', name: '东风破', artist: '周杰伦' },
-      { id: '157', name: '发如雪', artist: '周杰伦' },
-      { id: '158', name: '千里之外', artist: '周杰伦' },
-      { id: '159', name: '菊花台', artist: '周杰伦' },
-      { id: '160', name: '霍元甲', artist: '周杰伦' },
-      { id: '161', name: '本草纲目', artist: '周杰伦' },
-      { id: '162', name: '听妈妈的话', artist: '周杰伦' },
-      { id: '163', name: '夜的第七章', artist: '周杰伦' },
-      { id: '164', name: '红尘客栈', artist: '周杰伦' },
-      { id: '165', name: '明明就', artist: '周杰伦' },
-      { id: '166', name: '手写的从前', artist: '周杰伦' },
-      { id: '167', name: '烟花易冷', artist: '周杰伦' },
-      { id: '168', name: '兰亭序', artist: '周杰伦' },
-      { id: '169', name: '魔术先生', artist: '周杰伦' },
-      { id: '170', name: '乔克叔叔', artist: '周杰伦' },
-      { id: '171', name: '时光机', artist: '周杰伦' },
-      { id: '172', name: '龙战骑士', artist: '周杰伦' },
-      { id: '173', name: '给我一首歌的时间', artist: '周杰伦' },
-      { id: '174', name: '蛇舞', artist: '周杰伦' },
-      { id: '175', name: '花海', artist: '周杰伦' },
-      { id: '176', name: '说好不哭', artist: '周杰伦' },
-      { id: '177', name: 'Mojito', artist: '周杰伦' },
-      { id: '178', name: '最伟大的作品', artist: '周杰伦' },
-      { id: '179', name: '等你下课', artist: '周杰伦' },
-      { id: '180', name: '不爱我就拉倒', artist: '周杰伦' },
-      { id: '181', name: '说好的幸福呢', artist: '周杰伦' },
-      { id: '182', name: '稻香', artist: '周杰伦' },
-      { id: '183', name: '青花瓷', artist: '周杰伦' },
-      { id: '184', name: '告白气球', artist: '周杰伦' },
-      { id: '185', name: '七里香', artist: '周杰伦' },
-      { id: '186', name: '晴天', artist: '周杰伦' },
-      { id: '187', name: '回到过去', artist: '周杰伦' },
-      { id: '188', name: '我不配', artist: '周杰伦' },
-      { id: '189', name: '夜曲', artist: '周杰伦' },
-      { id: '190', name: '以父之名', artist: '周杰伦' },
-      { id: '191', name: '双截棍', artist: '周杰伦' },
-      { id: '192', name: '东风破', artist: '周杰伦' },
-      { id: '193', name: '发如雪', artist: '周杰伦' },
-      { id: '194', name: '千里之外', artist: '周杰伦' },
-      { id: '195', name: '菊花台', artist: '周杰伦' },
-      { id: '196', name: '霍元甲', artist: '周杰伦' },
-      { id: '197', name: '本草纲目', artist: '周杰伦' },
-      { id: '198', name: '听妈妈的话', artist: '周杰伦' },
-      { id: '199', name: '夜的第七章', artist: '周杰伦' },
-      { id: '200', name: '红尘客栈', artist: '周杰伦' },
-      { id: '201', name: '明明就', artist: '周杰伦' },
-      { id: '202', name: '手写的从前', artist: '周杰伦' },
-      { id: '203', name: '烟花易冷', artist: '周杰伦' },
-      { id: '204', name: '兰亭序', artist: '周杰伦' },
-      { id: '205', name: '魔术先生', artist: '周杰伦' },
-      { id: '206', name: '乔克叔叔', artist: '周杰伦' },
-      { id: '207', name: '时光机', artist: '周杰伦' },
-      { id: '208', name: '龙战骑士', artist: '周杰伦' },
-      { id: '209', name: '给我一首歌的时间', artist: '周杰伦' },
-      { id: '210', name: '蛇舞', artist: '周杰伦' },
-      { id: '211', name: '花海', artist: '周杰伦' },
-      { id: '212', name: '说好不哭', artist: '周杰伦' },
-      { id: '213', name: 'Mojito', artist: '周杰伦' },
-      { id: '214', name: '最伟大的作品', artist: '周杰伦' },
-      { id: '215', name: '等你下课', artist: '周杰伦' },
-      { id: '216', name: '不爱我就拉倒', artist: '周杰伦' },
-      { id: '217', name: '说好的幸福呢', artist: '周杰伦' },
-      { id: '218', name: '稻香', artist: '周杰伦' },
-      { id: '219', name: '青花瓷', artist: '周杰伦' },
-      { id: '220', name: '告白气球', artist: '周杰伦' },
-      { id: '221', name: '七里香', artist: '周杰伦' },
-      { id: '222', name: '晴天', artist: '周杰伦' },
-      { id: '223', name: '回到过去', artist: '周杰伦' },
-      { id: '224', name: '我不配', artist: '周杰伦' },
-      { id: '225', name: '夜曲', artist: '周杰伦' },
-      { id: '226', name: '以父之名', artist: '周杰伦' },
-      { id: '227', name: '双截棍', artist: '周杰伦' },
-      { id: '228', name: '东风破', artist: '周杰伦' },
-      { id: '229', name: '发如雪', artist: '周杰伦' },
-      { id: '230', name: '千里之外', artist: '周杰伦' },
-      { id: '231', name: '菊花台', artist: '周杰伦' },
-      { id: '232', name: '霍元甲', artist: '周杰伦' },
-      { id: '233', name: '本草纲目', artist: '周杰伦' },
-      { id: '234', name: '听妈妈的话', artist: '周杰伦' },
-      { id: '235', name: '夜的第七章', artist: '周杰伦' },
-      { id: '236', name: '红尘客栈', artist: '周杰伦' },
-      { id: '237', name: '明明就', artist: '周杰伦' },
-      { id: '238', name: '手写的从前', artist: '周杰伦' }
-    ]
+  onShow() {
+    // 每次显示时检查演出状态并刷新曲库
+    this.checkPerformanceStatus()
+    // 刷新曲库数据
+    this.initSongLibraryFromUserLibrary()
+  },
+
+  // 检查演出状态
+  checkPerformanceStatus() {
+    const { playlistId, performanceId } = this.data
+
+    // 获取当前演出
+    const performance = data.getCurrentPerformance()
+
+    console.log('点歌页面 - 检查演出状态:', {
+      playlistId,
+      performanceId,
+      performance
+    })
+
+    // 检查是否是当前演出的有效点歌
+    const hasOngoingPerformance = performance &&
+                                   performance.status === 'ongoing' &&
+                                   performance.playlistId === playlistId
+
+    if (!hasOngoingPerformance) {
+      console.log('演出无效:', {
+        hasPerformance: !!performance,
+        status: performance?.status,
+        performancePlaylistId: performance?.playlistId,
+        currentPlaylistId: playlistId
+      })
+
+      // 如果没有playlistId，可能是直接访问页面，显示提示但不返回
+      if (!playlistId) {
+        console.log('没有playlistId，跳过演出检查')
+        this.setData({
+          hasPerformance: false
+        })
+        return
+      }
+
+      // 演出已结束或无效，提示用户并返回
+      wx.showModal({
+        title: '演出已结束',
+        content: '当前演出已经结束，无法继续点歌',
+        showCancel: false,
+        success: () => {
+          wx.navigateBack()
+        }
+      })
+      return
+    }
+
+    // 检查是否是同一个演出
+    if (performanceId && performance.id !== performanceId) {
+      // 演出ID不匹配，说明是新演出，清空点歌记录
+      wx.setStorageSync('orderedSongs', [])
+      this.setData({
+        hasOrderedSong: false,
+        orderedSongIds: []
+      })
+    }
 
     this.setData({
-      songLibrary: songLibrary,
-      filteredSongs: songLibrary,
-      displaySongs: songLibrary
+      hasPerformance: true,
+      performanceId: performance.id,
+      singerId: performance.singerId || this.data.singerId
     })
+
+    console.log('演出状态检查通过:', {
+      performanceId: performance.id,
+      singerId: performance.singerId
+    })
+  },
+
+  // 从用户曲库初始化歌曲
+  async initSongLibraryFromUserLibrary() {
+    try {
+      // 获取演唱列表中已有的歌曲ID
+      const performance = data.getCurrentPerformance()
+      const singingList = performance ? performance.singingList || [] : []
+      const singingSongIds = singingList.map(s => s.id)
+
+      // 优先使用演出中的歌手ID
+      const singerId = this.data.singerId || (performance ? performance.singerId : '')
+
+      console.log('初始化曲库:', { singerId, singingSongIds: singingSongIds.length })
+
+      let librarySongs = []
+
+      if (singerId) {
+        try {
+          // 优先从云端获取曲库
+          const library = await cloudApi.getLibrary(singerId)
+          librarySongs = library ? library.songs : []
+          console.log('从云端获取曲库成功:', librarySongs.length, '首')
+        } catch (err) {
+          console.error('从云端获取曲库失败:', err)
+          // 如果云端获取失败，尝试从本地内存数据库获取
+          librarySongs = db.UserLibraryDB.getLibrarySongs(singerId)
+          console.log('从本地获取曲库:', librarySongs.length, '首')
+        }
+      }
+
+      // 如果没有获取到曲库，使用默认数据
+      if (!librarySongs || librarySongs.length === 0) {
+        console.log('使用默认曲库数据')
+        librarySongs = this.getDefaultLibrary()
+      }
+
+      // 过滤掉已在演唱列表中的歌曲
+      const availableSongs = librarySongs.filter(song =>
+        !singingSongIds.includes(song.id) &&
+        !this.data.orderedSongIds.includes(song.id)
+      )
+
+      // 如果没有可用歌曲，显示所有歌曲
+      const songLibrary = availableSongs.length > 0 ? availableSongs : librarySongs
+
+      this.setData({
+        songLibrary: songLibrary,
+        filteredSongs: songLibrary,
+        displaySongs: songLibrary
+      })
+
+      console.log('曲库初始化完成:', songLibrary.length, '首')
+    } catch (error) {
+      console.error('初始化曲库失败:', error)
+      // 使用默认数据作为后备
+      const defaultLibrary = this.getDefaultLibrary()
+      this.setData({
+        songLibrary: defaultLibrary,
+        filteredSongs: defaultLibrary,
+        displaySongs: defaultLibrary
+      })
+    }
+  },
+
+  // 获取默认曲库（用于演示）
+  getDefaultLibrary() {
+    return [
+      { id: 'd1', name: '晴天', artist: '周杰伦' },
+      { id: 'd2', name: '告白气球', artist: '周杰伦' },
+      { id: 'd3', name: '演员', artist: '薛之谦' },
+      { id: 'd4', name: '体面', artist: '于文文' },
+      { id: 'd5', name: '南山南', artist: '马頔' },
+      { id: 'd6', name: '成都', artist: '赵雷' },
+      { id: 'd7', name: '消愁', artist: '毛不易' },
+      { id: 'd8', name: '像我这样的人', artist: '毛不易' }
+    ]
   },
 
   // 搜索输入
@@ -308,6 +215,14 @@ Page({
   // 搜索确认
   onSearchConfirm() {
     this.filterSongs(this.data.searchText)
+  },
+
+  // 清除搜索
+  clearSearch() {
+    this.setData({
+      searchText: ''
+    })
+    this.filterSongs('')
   },
 
   // 过滤歌曲
@@ -341,6 +256,12 @@ Page({
       return
     }
 
+    // 检查演出状态
+    if (!this.data.hasPerformance) {
+      util.showToast('当前没有演出')
+      return
+    }
+
     this.setData({
       showPointModal: true,
       selectedSong: song,
@@ -364,72 +285,79 @@ Page({
     })
   },
 
+  // 阻止事件冒泡
+  stopPropagation() {
+    // 什么都不做，只是阻止冒泡
+  },
+
   // 确认点歌
   confirmPointSong() {
-    const { playlistId, selectedSong, pointMessage, currentUser, performanceId } = this.data
+    const { selectedSong, pointMessage, orderedSongIds, performanceId } = this.data
 
-    if (!playlistId) {
-      util.showToast('参数错误')
+    if (!selectedSong || !selectedSong.id) {
+      util.showToast('请选择一首歌曲')
       return
     }
 
-    if (!currentUser) {
-      util.showToast('请先登录')
+    // 再次检查演出状态
+    const performance = data.getCurrentPerformance()
+    if (!performance || performance.status !== 'ongoing') {
+      util.showToast('演出已结束，无法点歌')
+      this.hidePointModal()
       return
     }
-
-    if (!performanceId) {
-      util.showToast('当前没有正在进行的演出')
-      return
-    }
-
-    // 创建点歌记录
-    db.PointRecordDB.createPointRecord({
-      performanceId: performanceId,
-      userId: currentUser.id,
-      songId: selectedSong.id,
-      songName: selectedSong.name,
-      songArtist: selectedSong.artist,
-      message: pointMessage,
-      priority: 1,
-      status: 'pending'
-    })
 
     // 获取演唱列表
-    let singingList = data.getSingingList()
+    let singingList = performance.singingList || []
+
+    // 检查用户是否已经点过这首歌
+    if (orderedSongIds.includes(selectedSong.id)) {
+      util.showToast('您已经点过这首歌了')
+      this.hidePointModal()
+      return
+    }
 
     // 创建新点歌
     const newSong = {
-      id: util.generateId(),
-      name: selectedSong.name,
-      artist: selectedSong.artist,
-      message: pointMessage,
+      ...selectedSong,
       priority: 1,
-      addTime: Date.now()
+      addTime: Date.now(),
+      message: pointMessage.trim()
     }
 
-    // 添加到列表
+    // 添加到演唱列表
     singingList.push(newSong)
-    data.setSingingList(singingList)
 
     // 更新演出的演唱列表
-    db.PerformanceDB.updatePerformance(performanceId, {
-      singingList: singingList
+    data.updatePerformanceSingingList(singingList)
+
+    // 保存点歌记录
+    const orderedSongs = wx.getStorageSync('orderedSongs') || []
+    orderedSongs.push({
+      id: selectedSong.id,
+      name: selectedSong.name,
+      performanceId: performanceId,
+      orderTime: Date.now()
     })
+    wx.setStorageSync('orderedSongs', orderedSongs)
 
     util.showToast('点歌成功！')
     this.hidePointModal()
 
-    // 标记已点歌，返回上一页
-    const pages = getCurrentPages()
-    if (pages.length > 1) {
-      const prevPage = pages[pages.length - 2]
-      if (prevPage) {
-        prevPage.setData({
-          hasOrderedSong: true
-        })
+    // 返回上一页
+    setTimeout(() => {
+      const pages = getCurrentPages()
+      if (pages.length > 1) {
+        const prevPage = pages[pages.length - 2]
+        if (prevPage) {
+          prevPage.setData({
+            hasOrderedSong: true,
+            singingList: singingList,
+            orderedSongIds: [...orderedSongIds, selectedSong.id]
+          })
+        }
+        wx.navigateBack()
       }
-      wx.navigateBack()
-    }
+    }, 500)
   }
 })
