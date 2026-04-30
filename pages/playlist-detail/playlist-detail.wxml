@@ -19,8 +19,13 @@
             <text class="stats-item">{{songs.length}} 首歌曲</text>
           </view>
         </view>
-        <view class="delete-btn" bindtap="showDeleteModal">
-          <icon name="delete" size="32rpx" color="#E07A5F" />
+        <view class="actions-container">
+          <view class="qr-btn" bindtap="showPlaylistQR">
+            <icon name="qr" size="32rpx" color="#8B7D6B" />
+          </view>
+          <view class="delete-btn" bindtap="showDeleteModal">
+            <icon name="delete" size="32rpx" color="#E07A5F" />
+          </view>
         </view>
       </view>
     </view>

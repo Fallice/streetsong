@@ -76,7 +76,7 @@
               </view>
             </view>
             <view class="playlist-actions">
-              <view class="qr-btn" catchtap="showPlaylistQR" data-playlist-id="{{item.id}}">
+              <view class="qr-btn" catchtap="showPlaylistQR" data-playlist-id="{{item.id}}" data-playlist-name="{{item.name}}">
                 <icon name="qr" size="36rpx" color="#8B7D6B" />
               </view>
             </view>

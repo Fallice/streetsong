@@ -363,5 +363,14 @@ Page({
     wx.navigateTo({
       url: `/pages/singing/singing?playlistId=${this.data.playlistId}`
     })
+  },
+
+  // 显示歌单二维码
+  showPlaylistQR() {
+    const { playlistId, playlist } = this.data
+    const playlistName = playlist ? playlist.name : '歌单'
+    wx.navigateTo({
+      url: `/pages/playlist-qr/playlist-qr?playlistId=${playlistId}&name=${encodeURIComponent(playlistName)}`
+    })
   }
 })

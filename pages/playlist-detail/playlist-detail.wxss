@@ -79,6 +79,47 @@ page {
   transform: scale(0.95);
 }
 
+.actions-container {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex-shrink: 0;
+}
+
+.qr-btn {
+  width: 56rpx;
+  height: 56rpx;
+  background: #F5F0E8;
+  border-radius: 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.qr-btn:active {
+  background: #E8C9A0;
+  transform: scale(0.95);
+}
+
+.delete-btn {
+  width: 56rpx;
+  height: 56rpx;
+  background: #FFF5F5;
+  border-radius: 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:active {
+  background: #E07A5F;
+  transform: scale(0.95);
+}
+
 .delete-btn {
   width: 56rpx;
   height: 56rpx;
