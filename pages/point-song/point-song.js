@@ -317,12 +317,18 @@ Page({
       return
     }
 
+    // 获取当前用户信息
+    const userInfo = wx.getStorageSync('userInfo') || {}
+
     // 创建新点歌
     const newSong = {
       ...selectedSong,
       priority: 1,
       addTime: Date.now(),
-      message: pointMessage.trim()
+      message: pointMessage.trim(),
+      // 用户信息
+      userName: userInfo.nickName || userInfo.nickname || '匿名用户',
+      userAvatar: userInfo.avatarUrl || ''
     }
 
     // 添加到演唱列表

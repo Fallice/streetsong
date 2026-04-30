@@ -33,7 +33,7 @@
 
     <view class="message-section" wx:if="{{currentSong && currentSong.message}}">
       <view class="user-info">
-        <view class="user-avatar"></view>
+        <image class="user-avatar" src="{{currentSong.userAvatar || ''}}" mode="aspectFill"></image>
         <view class="user-name">{{currentSong.userName || '观众'}}</view>
       </view>
       <view class="message-box">

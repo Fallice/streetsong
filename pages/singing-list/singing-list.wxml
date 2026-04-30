@@ -88,8 +88,12 @@
                   <text class="song-name">{{item.name}}</text>
                   <text class="song-artist">{{item.artist}}</text>
                 </view>
-                <!-- 显示点歌留言 -->
+                <!-- 显示点歌用户信息和留言 -->
                 <view class="song-message" wx:if="{{item.message}}">
+                  <view class="user-info-mini" wx:if="{{item.userName || item.userAvatar}}">
+                    <image class="user-avatar-mini" src="{{item.userAvatar || ''}}" mode="aspectFill"></image>
+                    <view class="user-name-mini">{{item.userName || '观众'}}</view>
+                  </view>
                   <view class="message-text">
                     <icon name="message" size="24rpx" color="#B5A99A" />
                     <text>{{item.message}}</text>

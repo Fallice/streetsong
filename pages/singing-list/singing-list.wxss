@@ -291,6 +291,26 @@ page {
   border-top: 2rpx solid #E8E0D4;
 }
 
+.user-info-mini {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.user-avatar-mini {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8C9A0 0%, #D4A574 100%);
+  margin-right: 8rpx;
+  overflow: hidden;
+}
+
+.user-name-mini {
+  font-size: 20rpx;
+  color: #8B7D6B;
+}
+
 .message-text {
   display: flex;
   align-items: center;
