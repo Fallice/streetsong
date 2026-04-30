@@ -59,17 +59,32 @@ Component({
   },
   lifetimes: {
     attached() {
-      const rect = wx.getMenuButtonBoundingClientRect()
-      const platform = (wx.getDeviceInfo() || wx.getSystemInfoSync()).platform
-      const isAndroid = platform === 'android'
-      const isDevtools = platform === 'devtools'
-      const { windowWidth, safeArea: { top = 0, bottom = 0 } = {} } = wx.getWindowInfo() || wx.getSystemInfoSync()
-      this.setData({
-        ios: !isAndroid,
-        innerPaddingRight: `padding-right: ${windowWidth - rect.left}px`,
-        leftWidth: `width: ${windowWidth - rect.left}px`,
-        safeAreaTop: isDevtools || isAndroid ? `height: calc(var(--height) + ${top}px); padding-top: ${top}px` : ``
-      })
+      try {
+        // 获取系统信息
+        const systemInfo = wx.getSystemInfoSync()
+        const rect = wx.getMenuButtonBoundingClientRect()
+        const platform = systemInfo.platform
+        const isAndroid = platform === 'android'
+        const isDevtools = platform === 'devtools'
+        const windowWidth = systemInfo.windowWidth
+        const safeAreaTop = systemInfo.safeArea.top || 0
+
+        this.setData({
+          ios: !isAndroid,
+          innerPaddingRight: `padding-right: ${windowWidth - rect.left}px`,
+          leftWidth: `width: ${windowWidth - rect.left}px`,
+          safeAreaTop: `height: calc(var(--height) + ${safeAreaTop}px); padding-top: ${safeAreaTop}px`
+        })
+      } catch (error) {
+        console.error('获取导航栏信息失败:', error)
+        // 设置默认值，避免UI崩溃
+        this.setData({
+          ios: false,
+          innerPaddingRight: 'padding-right: 20px',
+          leftWidth: 'width: 20px',
+          safeAreaTop: 'height: calc(var(--height) + 20px); padding-top: 20px'
+        })
+      }
     },
   },
   /**
