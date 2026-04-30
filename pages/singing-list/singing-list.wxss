@@ -22,10 +22,30 @@ page {
   z-index: 10;
 }
 
+/* 歌曲列表标题样式 */
+.section-title-only {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 /* 可滚动区域 */
 .scrollable-section {
   flex: 1;
+  overflow-y: hidden;
+}
+
+.scrollable-section.scrollable {
   overflow-y: auto;
+}
+
+/* 隐藏滚动条 */
+.scrollable-section::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollable-section {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .scrollable-section .container {
@@ -282,7 +302,7 @@ page {
 
 .like-section {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 8rpx;
   flex-shrink: 0;
@@ -291,8 +311,8 @@ page {
 .like-btn {
   display: flex;
   align-items: center;
-  gap: 4rpx;
-  padding: 8rpx 16rpx;
+  gap: 0;
+  padding: 8rpx 12rpx;
   background: #FFFFFF;
   border: 2rpx solid #E8E0D4;
   border-radius: 24rpx;
@@ -314,20 +334,12 @@ page {
   justify-content: center;
 }
 
-.like-text {
-  font-size: 22rpx;
-  color: #8B7D6B;
-  font-weight: 500;
-}
-
-.like-btn.liked .like-text {
-  color: #FF0000;
-}
-
 .like-count {
   font-size: 24rpx;
   color: #8B7D6B;
   font-weight: 500;
+  min-width: 32rpx;
+  text-align: center;
 }
 
 /* ===== 底部按钮 ===== */

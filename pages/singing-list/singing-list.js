@@ -18,7 +18,8 @@ Page({
     performance: null,
     singerId: '',
     singerName: '',
-    isLoading: true
+    isLoading: true,
+    isScrollable: false // 是否需要滚动
   },
 
   onLoad(options) {
@@ -67,6 +68,11 @@ Page({
   onShow() {
     // 每次显示页面时检查演出状态
     this.checkPerformanceStatus()
+
+    // 检查页面是否需要滚动
+    setTimeout(() => {
+      this.checkScrollStatus()
+    }, 100)
 
     // 定时刷新列表
     this.pollingTimer = setInterval(() => {
@@ -256,6 +262,11 @@ Page({
         singerName: performance.singerName || this.data.singerName
       })
 
+      // 延迟检查滚动状态
+      setTimeout(() => {
+        this.checkScrollStatus()
+      }, 100)
+
       wx.showToast({
         title: '进入演出成功',
         icon: 'success'
@@ -269,6 +280,11 @@ Page({
         currentSong: null,
         nextSong: null
       })
+
+      // 延迟检查滚动状态
+      setTimeout(() => {
+        this.checkScrollStatus()
+      }, 100)
 
       // 显示调试信息
       if (performance) {
@@ -368,6 +384,38 @@ Page({
         nextSong: null
       })
     }
+
+    // 检查并设置滚动状态
+    this.checkScrollStatus()
+  },
+
+  // 检查并设置滚动状态
+  checkScrollStatus() {
+    // 计算页面内容高度和屏幕高度
+    const query = wx.createSelectorQuery()
+    query.select('.page-container').boundingClientRect()
+    query.selectViewport().scrollOffset()
+    query.exec((res) => {
+      if (res[0]) {
+        // 页面内容高度
+        const pageHeight = res[0].height
+        // 屏幕高度（包含导航栏）
+        const systemInfo = wx.getSystemInfoSync()
+        const screenHeight = systemInfo.screenHeight
+
+        // 如果页面内容高度大于屏幕高度，启用滚动
+        const isScrollable = pageHeight > screenHeight
+        if (isScrollable) {
+          this.setData({
+            isScrollable: true
+          })
+        } else {
+          this.setData({
+            isScrollable: false
+          })
+        }
+      }
+    })
   },
 
   // 检查演唱列表是否发生变化
