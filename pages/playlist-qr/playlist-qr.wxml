@@ -40,6 +40,11 @@
     </button>
   </view>
 
+  <view class="regenerate-section" wx:if="{{qrCodeUrl}}">
+    <text class="regenerate-hint" wx:if="{{qrFromCache}}">此二维码与歌单绑定，无需重复生成</text>
+    <text class="regenerate-link" bindtap="regenerateQRCode">重新生成</text>
+  </view>
+
   <!-- 开发测试按钮 -->
   <view class="dev-section" wx:if="{{isDevMode}}">
     <view class="dev-title">🧪 开发测试工具</view>

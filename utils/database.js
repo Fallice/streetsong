@@ -341,7 +341,6 @@ const PerformanceDB = {
       status: 'ongoing',
       playlistId: performanceData.playlistId,
       playlist: null,
-      singingList: performanceData.singingList || [],
       audienceCount: 0,
       createdAt: new Date()
     }
@@ -382,11 +381,7 @@ const PerformanceDB = {
     }
   },
 
-  updateSingingList(id, singingList) {
-    return this.updatePerformance(id, {
-      singingList: singingList
-    })
-  }
+  // 注意：不再更新演出的演唱列表，因为现在直接使用歌单歌曲
 }
 
 // 点歌记录操作

@@ -20,7 +20,7 @@ exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const { action, data } = event
 
-  console.log('API请求:', { action, data, openid: wxContext.OPENID })
+  console.log('API请求:', { action, data, openid: wxContext.OPENID, fullEvent: event })
 
   try {
     let result = null
@@ -102,8 +102,16 @@ exports.main = async (event, context) => {
         result = await endPerformance(data.performanceId)
         break
 
-      case 'updateSingingList':
-        result = await updateSingingList(data.performanceId, data.singingList)
+      case 'updatePerformanceProgress':
+        result = await updatePerformanceProgress(data.performanceId, data.currentIndex, data.sungCount)
+        break
+
+      case 'updatePerformanceSingingList':
+        result = await updatePerformanceSingingList(data.performanceId, data.singingList)
+        break
+
+      case 'getPerformanceSingingList':
+        result = await getPerformanceSingingList(data.performanceId)
         break
 
       // ========== 点歌记录相关 ==========
@@ -133,6 +141,10 @@ exports.main = async (event, context) => {
 
       case 'getMiniProgramCode':
         result = await getMiniProgramCode(data)
+        break
+
+      case 'getPlaylistQRCode':
+        result = await getPlaylistQRCode(data.playlistId, data.forceRefresh)
         break
 
       default:
@@ -259,10 +271,34 @@ async function getPlaylistById(id) {
     return null
   }
   console.log('找到歌单:', res.data)
-  // 转换 _id 为 id
-  const playlist = { ...res.data, id: res.data._id }
+  // 转换 _id 为 id，同时处理歌曲数据结构
+  const playlistData = res.data
+  const rawSongs = playlistData.data?.songs || playlistData.songs || []
+  // 确保每首歌都有 id 字段（从 _id 转换）
+  const songs = rawSongs.map(s => ({
+    ...s,
+    id: s.id || s._id || ''
+  }))
+  const playlist = {
+    ...playlistData,
+    id: playlistData._id,
+    songs: songs
+  }
   delete playlist._id
+  // 删除 data 字段避免混淆
+  if (playlist.data) {
+    delete playlist.data
+  }
+  console.log('处理后的歌单:', playlist)
   return playlist
+}
+
+// 辅助函数：确保歌曲都有 id 字段（从 _id 转换）
+function normalizeSongs(rawSongs) {
+  return (rawSongs || []).map(s => ({
+    ...s,
+    id: s.id || s._id || ''
+  }))
 }
 
 async function findPlaylistBySuffix(suffix) {
@@ -272,8 +308,13 @@ async function findPlaylistBySuffix(suffix) {
     let res = await db.collection(COLLECTIONS.USER_PLAYLISTS).doc(suffix).get()
     if (res.data) {
       console.log('直接找到歌单:', res.data)
-      const playlist = { ...res.data, id: res.data._id }
+      const playlist = {
+        ...res.data,
+        id: res.data._id,
+        songs: normalizeSongs(res.data.data?.songs || res.data.songs)
+      }
       delete playlist._id
+      if (playlist.data) delete playlist.data
       return playlist
     }
 
@@ -296,8 +337,13 @@ async function findPlaylistBySuffix(suffix) {
 
     if (matchedPlaylist) {
       console.log('找到匹配的歌单:', matchedPlaylist)
-      const playlist = { ...matchedPlaylist, id: matchedPlaylist._id }
+      const playlist = {
+        ...matchedPlaylist,
+        id: matchedPlaylist._id,
+        songs: normalizeSongs(matchedPlaylist.data?.songs || matchedPlaylist.songs)
+      }
       delete playlist._id
+      if (playlist.data) delete playlist.data
       return playlist
     }
 
@@ -367,7 +413,20 @@ async function removeSongFromPlaylist(playlistId, songId) {
 // ========== 演出相关 ==========
 async function getPerformanceById(id) {
   const res = await db.collection(COLLECTIONS.PERFORMANCES).doc(id).get()
-  return res.data
+  if (!res.data) return null
+
+  // 处理嵌套的数据结构
+  const item = res.data
+  const perf = { ...item, id: item._id }
+  if (item.data) {
+    perf.playlistId = item.data.playlistId || item.playlistId
+    perf.singerName = item.data.singerName || item.singerName
+    perf.status = item.data.status || item.status
+    perf.currentIndex = item.data.currentIndex || item.currentIndex || 0
+    perf.sungCount = item.data.sungCount || item.sungCount || 0
+  }
+  delete perf._id
+  return perf
 }
 
 async function getUserPerformances(userId) {
@@ -375,7 +434,20 @@ async function getUserPerformances(userId) {
     .where({ userId })
     .orderBy('createdAt', 'desc')
     .get()
-  return res.data
+  // 确保演出数据格式一致，与歌单查询类似
+  return res.data.map(item => {
+    const perf = { ...item, id: item._id }
+    // 处理嵌套的数据结构
+    if (item.data) {
+      perf.playlistId = item.data.playlistId || item.playlistId
+      perf.singerName = item.data.singerName || item.singerName
+      perf.status = item.data.status || item.status
+      perf.currentIndex = item.data.currentIndex || item.currentIndex || 0
+      perf.sungCount = item.data.sungCount || item.sungCount || 0
+    }
+    delete perf._id
+    return perf
+  })
 }
 
 async function getPerformancesByPlaylistId(playlistId) {
@@ -385,23 +457,41 @@ async function getPerformancesByPlaylistId(playlistId) {
     .orderBy('createdAt', 'desc')
     .get()
   console.log('查询结果:', res.data)
-  return res.data
+
+  // 确保演出数据格式一致，与歌单查询类似
+  return res.data.map(item => {
+    const perf = { ...item, id: item._id }
+    // 处理嵌套的数据结构
+    if (item.data) {
+      perf.playlistId = item.data.playlistId || item.playlistId
+      perf.singerName = item.data.singerName || item.singerName
+      perf.status = item.data.status || item.status
+      perf.currentIndex = item.data.currentIndex || item.currentIndex || 0
+      perf.sungCount = item.data.sungCount || item.sungCount || 0
+    }
+    delete perf._id
+    return perf
+  })
 }
 
-async function createPerformance(userId, data) {
-  const performanceId = generateId()
+async function createPerformance(userId, params) {
+  console.log('createPerformance 参数:', { userId, params })
+  const performanceId = params.performanceId || generateId()
   const performance = {
-    _id: performanceId,
     userId,
-    title: data.title || '新演出',
-    playlistId: data.playlistId,
+    singerName: params.singerName || '歌手',
+    title: params.title || '新演出',
+    playlistId: params.playlistId,
     status: 'ongoing',
     audienceCount: 0,
-    singingList: [],
+    currentIndex: params.currentIndex || 0,
+    sungCount: params.sungCount || 0,
     createdAt: db.serverDate(),
     updatedAt: db.serverDate()
   }
-  await db.collection(COLLECTIONS.PERFORMANCES).doc(performanceId).set({ data: performance })
+  await db.collection(COLLECTIONS.PERFORMANCES).doc(performanceId).set({
+    data: performance
+  })
   return { id: performanceId, ...performance }
 }
 
@@ -416,14 +506,53 @@ async function endPerformance(id) {
   return true
 }
 
-async function updateSingingList(id, singingList) {
+async function updatePerformanceProgress(id, currentIndex, sungCount) {
   await db.collection(COLLECTIONS.PERFORMANCES).doc(id).update({
     data: {
-      singingList,
+      currentIndex,
+      sungCount,
       updatedAt: db.serverDate()
     }
   })
   return true
+}
+
+// 更新演出的演唱列表（用于同步点赞和点歌数据）
+async function updatePerformanceSingingList(performanceId, singingList) {
+  if (!performanceId || !singingList) {
+    throw new Error('performanceId 和 singingList 不能为空')
+  }
+  // 归一化歌曲ID
+  const normalizedSongs = (singingList || []).map(s => ({
+    ...s,
+    id: s.id || s._id || ''
+  }))
+  await db.collection(COLLECTIONS.PERFORMANCES).doc(performanceId).update({
+    data: {
+      singingList: normalizedSongs,
+      updatedAt: db.serverDate()
+    }
+  })
+  return { singingList: normalizedSongs }
+}
+
+// 获取演出的演唱列表
+async function getPerformanceSingingList(performanceId) {
+  if (!performanceId) {
+    throw new Error('performanceId 不能为空')
+  }
+  const res = await db.collection(COLLECTIONS.PERFORMANCES).doc(performanceId).get()
+  if (!res.data) return null
+
+  const perf = res.data
+  // 处理嵌套数据结构
+  let singingList = perf.singingList || (perf.data && perf.data.singingList) || []
+  // 归一化歌曲ID
+  singingList = singingList.map(s => ({
+    ...s,
+    id: s.id || s._id || ''
+  }))
+  return { singingList, updatedAt: perf.updatedAt || (perf.data && perf.data.updatedAt) }
 }
 
 // ========== 点歌记录相关 ==========
@@ -595,6 +724,99 @@ async function getMiniProgramCode(data) {
     }
   } catch (err) {
     console.error('生成小程序码失败:', err)
+    throw err
+  }
+}
+
+// 获取或生成歌单专属小程序码（与歌单绑定，首次生成后缓存到歌单文档）
+async function getPlaylistQRCode(playlistId, forceRefresh) {
+  if (!playlistId) {
+    throw new Error('playlistId 不能为空')
+  }
+
+  try {
+    // 查找歌单文档
+    const playlistRes = await db.collection(COLLECTIONS.USER_PLAYLISTS).doc(playlistId).get()
+    if (!playlistRes.data) {
+      throw new Error('歌单不存在')
+    }
+
+    const doc = playlistRes.data
+    // 读取 qrCodeFileID（兼容扁平结构和嵌套 data 结构）
+    const qrCodeFileID = doc.qrCodeFileID || (doc.data && doc.data.qrCodeFileID)
+
+    if (qrCodeFileID && !forceRefresh) {
+      console.log('歌单已有二维码 fileID:', qrCodeFileID)
+      try {
+        const tempUrlRes = await cloud.getTempFileURL({
+          fileList: [qrCodeFileID]
+        })
+        const tempUrl = tempUrlRes.fileList[0].tempFileURL
+        if (tempUrl) {
+          console.log('使用已缓存的二维码')
+          return {
+            fileUrl: tempUrl,
+            fileID: qrCodeFileID,
+            fromCache: true
+          }
+        }
+      } catch (err) {
+        console.log('获取临时链接失败，将重新生成:', err.message)
+      }
+    }
+
+    // 没有缓存或缓存失效，生成新的小程序码
+    console.log('为歌单生成新二维码...')
+
+    let scene = `p=${playlistId}`
+    if (scene.length > 32) {
+      const shortId = playlistId.substring(playlistId.length - 30)
+      scene = shortId
+    }
+
+    const wxacodeResult = await cloud.openapi.wxacode.getUnlimited({
+      scene: scene,
+      page: 'pages/index/index',
+      width: 430,
+      auto_color: false,
+      line_color: { r: 212, g: 165, b: 116 }
+    })
+
+    // 上传到云存储（使用固定文件名，相同歌单覆盖旧文件）
+    const fileName = `qrcodes/playlist_${playlistId.replace(/[^a-zA-Z0-9]/g, '_')}.png`
+    const uploadResult = await cloud.uploadFile({
+      cloudPath: fileName,
+      fileContent: wxacodeResult.buffer
+    })
+
+    const fileID = uploadResult.fileID
+
+    // 获取临时链接
+    const fileUrlResult = await cloud.getTempFileURL({
+      fileList: [fileID]
+    })
+    const fileUrl = fileUrlResult.fileList[0].tempFileURL
+
+    // 将 fileID 持久化到歌单文档，后续复用
+    try {
+      await db.collection(COLLECTIONS.USER_PLAYLISTS).doc(playlistId).update({
+        data: {
+          qrCodeFileID: fileID,
+          updatedAt: db.serverDate()
+        }
+      })
+      console.log('二维码 fileID 已保存到歌单文档')
+    } catch (updateErr) {
+      console.error('保存 fileID 到歌单失败:', updateErr)
+    }
+
+    return {
+      fileUrl: fileUrl,
+      fileID: fileID,
+      fromCache: false
+    }
+  } catch (err) {
+    console.error('获取歌单二维码失败:', err)
     throw err
   }
 }

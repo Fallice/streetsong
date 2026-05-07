@@ -319,7 +319,6 @@ const createPerformance = (playlistId, userId, userName) => {
     status: 'ongoing', // ongoing | ended
     startTime: Date.now(),
     endTime: null,
-    singingList: [],
     currentIndex: 0, // 当前演唱歌曲索引
     sungCount: 0 // 已演唱歌曲数量
   }
@@ -375,38 +374,6 @@ const hasOngoingPerformance = (playlistId) => {
 }
 
 /**
- * 获取演出对应的演唱列表
- */
-const getPerformanceSingingList = () => {
-  const performance = getCurrentPerformance()
-  if (performance && performance.status === 'ongoing') {
-    return performance.singingList || []
-  }
-  return []
-}
-
-/**
- * 更新演出的演唱列表
- * @param {Array} singingList - 演唱列表
- */
-const updatePerformanceSingingList = (singingList) => {
-  const performance = getCurrentPerformance()
-  if (performance && performance.status === 'ongoing') {
-    performance.singingList = singingList
-    try {
-      wx.setStorageSync(STORAGE_KEYS.PERFORMANCE, performance)
-      // 同时更新全局演唱列表
-      setSingingList(singingList)
-      return true
-    } catch (error) {
-      console.error('更新演出演唱列表失败:', error)
-      return false
-    }
-  }
-  return false
-}
-
-/**
  * 更新演唱进度
  * @param {number} currentIndex - 当前歌曲索引
  * @param {number} sungCount - 已演唱数量
@@ -417,12 +384,13 @@ const updatePerformanceProgress = (currentIndex, sungCount) => {
     performance.currentIndex = currentIndex
     performance.sungCount = sungCount
     try {
+      // 保存到本地存储
       wx.setStorageSync(STORAGE_KEYS.PERFORMANCE, performance)
-      // 同时更新全局演唱列表，确保同步
-      setSingingList(performance.singingList || [])
+
+      console.log('更新演出进度成功:', { id: performance.id, currentIndex, sungCount })
       return true
     } catch (error) {
-      console.error('更新演唱进度失败:', error)
+      console.error('更新演出进度失败:', error)
       return false
     }
   }
@@ -430,15 +398,14 @@ const updatePerformanceProgress = (currentIndex, sungCount) => {
 }
 
 /**
- * 获取演唱进度
+ * 获取演唱进度（只返回索引和计数）
  */
 const getPerformanceProgress = () => {
   const performance = getCurrentPerformance()
   if (performance && performance.status === 'ongoing') {
     return {
       currentIndex: performance.currentIndex || 0,
-      sungCount: performance.sungCount || 0,
-      singingList: performance.singingList || []
+      sungCount: performance.sungCount || 0
     }
   }
   return null
@@ -481,8 +448,6 @@ module.exports = {
   createPerformance,
   endCurrentPerformance,
   hasOngoingPerformance,
-  getPerformanceSingingList,
-  updatePerformanceSingingList,
   clearOrderedSongsForPerformance,
   // 演唱进度相关
   updatePerformanceProgress,

@@ -264,16 +264,7 @@ const PerformanceDB = {
     return true
   },
 
-  // 更新演唱列表
-  async updateSingingList(id, singingList) {
-    await db.collection(COLLECTIONS.PERFORMANCES).doc(id).update({
-      data: {
-        singingList,
-        updatedAt: db.serverDate()
-      }
-    })
-    return true
-  }
+  // 注意：不再更新演出的演唱列表，因为现在直接使用歌单歌曲
 }
 
 // 点歌记录相关操作

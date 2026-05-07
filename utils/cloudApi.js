@@ -2,6 +2,7 @@
 const cloud = {
   // 调用云函数
   callFunction(action, data = {}) {
+    console.log('调用云函数:', { action, data })
     return wx.cloud.callFunction({
       name: 'api',
       data: {
@@ -9,6 +10,7 @@ const cloud = {
         data
       }
     }).then(res => {
+      console.log('云函数响应:', { action, result: res })
       if (res.result && res.result.success) {
         return res.result.data
       } else {
@@ -85,8 +87,33 @@ const cloud = {
     return this.callFunction('endPerformance', { performanceId })
   },
 
-  updateSingingList(performanceId, singingList) {
-    return this.callFunction('updateSingingList', { performanceId, singingList })
+  // 更新演出进度
+  updatePerformanceProgress(performanceId, currentIndex, sungCount) {
+    return this.callFunction('updatePerformanceProgress', {
+      performanceId,
+      currentIndex,
+      sungCount
+    })
+  },
+
+  // 获取歌单二维码（首次生成后缓存到云端歌单文档，forceRefresh 跳过缓存重新生成）
+  getPlaylistQRCode(playlistId, forceRefresh) {
+    return this.callFunction('getPlaylistQRCode', { playlistId, forceRefresh })
+  },
+
+  // 更新演出演唱列表（用于同步点赞和点歌）
+  updatePerformanceSingingList(performanceId, singingList) {
+    return this.callFunction('updatePerformanceSingingList', {
+      performanceId,
+      singingList
+    })
+  },
+
+  // 获取演出演唱列表
+  getPerformanceSingingList(performanceId) {
+    return this.callFunction('getPerformanceSingingList', {
+      performanceId
+    })
   },
 
   // ========== 点歌记录相关 ==========

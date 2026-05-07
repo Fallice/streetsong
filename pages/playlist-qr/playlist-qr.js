@@ -51,86 +51,67 @@ Page({
     }
   },
 
-  // 生成小程序码
+  // 获取歌单二维码（优先使用云端缓存，首次生成后永久复用）
   async generateQRCode() {
-    wx.showLoading({ title: '生成中...' })
+    wx.showLoading({ title: '加载二维码...' })
 
     try {
-      // 生成小程序码使用的 scene 参数（限制32字符）
       const playlistId = this.data.playlistId
-      let scene = `p=${playlistId}`
+      console.log('获取歌单二维码, playlistId:', playlistId)
 
-      console.log('原始 scene:', scene, '长度:', scene.length)
+      // 调用云函数获取或生成歌单专属二维码
+      const result = await cloudApi.getPlaylistQRCode(playlistId)
 
-      // 如果超过32字符，缩短后面的ID部分
-      if (scene.length > 32) {
-        // 计算 p= 后面还可以放多少字符
-        const availableLength = 32 - 2
-        const shortId = playlistId.substring(playlistId.length - availableLength)
-        scene = `p=${shortId}`
-        console.log('缩短后的 scene:', scene, '长度:', scene.length)
-      }
+      console.log('获取二维码结果:', result)
 
-      console.log('最终 scene参数:', scene, '长度:', scene.length)
-
-      // 调用云函数生成小程序码
-      const result = await wx.cloud.callFunction({
-        name: 'api',
-        data: {
-          action: 'getMiniProgramCode',
-          data: {
-            scene: scene,
-            page: 'pages/index/index', // 扫码先进入首页，再由首页跳转
-            width: 430,
-            forceRefresh: true // 强制刷新，避免返回旧缓存
-          }
-        }
-      })
-
-      console.log('生成小程序码结果:', result)
-
-      if (result.result && result.result.success) {
-        const qrData = result.result.data
-        console.log('qrData:', qrData, '类型:', typeof qrData)
-
-        // 确保返回的数据格式正确
-        let fileUrl = ''
-        let fileID = ''
-
-        if (typeof qrData === 'string') {
-          // 如果是字符串，说明只有 fileUrl（旧版本的缓存）
-          fileUrl = qrData
-          fileID = ''
-        } else if (qrData && qrData.fileUrl) {
-          // 如果是对象，直接获取
-          fileUrl = qrData.fileUrl
-          fileID = qrData.fileID || ''
-        }
-
-        if (fileUrl) {
-          this.setData({
-            qrCodeUrl: fileUrl,
-            qrCodeFileID: fileID,
-            isRealQRCode: true
-          })
-          console.log('成功显示真实小程序码')
-        } else {
-          console.error('未找到有效的二维码URL')
-          this.generateCanvasQRCode()
-        }
+      if (result && result.fileUrl) {
+        this.setData({
+          qrCodeUrl: result.fileUrl,
+          qrCodeFileID: result.fileID || '',
+          isRealQRCode: true,
+          qrFromCache: result.fromCache
+        })
+        console.log(result.fromCache ? '使用已缓存的二维码' : '新生成二维码并已缓存到歌单')
       } else {
-        console.error('云函数返回失败:', result.result)
-        // 如果云函数失败，使用本地Canvas生成二维码
+        console.error('未获取到有效的二维码')
         this.generateCanvasQRCode()
       }
     } catch (err) {
-      console.error('生成小程序码失败:', err)
-      // 显示更详细的错误信息
+      console.error('获取歌单二维码失败:', err)
       wx.showModal({
-        title: '生成失败',
+        title: '获取失败',
         content: `错误信息: ${err.message || '未知错误'}`,
         showCancel: false
       })
+      this.generateCanvasQRCode()
+    } finally {
+      wx.hideLoading()
+    }
+  },
+
+  // 强制重新生成二维码
+  async regenerateQRCode() {
+    wx.showLoading({ title: '重新生成中...' })
+
+    try {
+      const playlistId = this.data.playlistId
+
+      // 使用 forceRefresh 跳过缓存，重新生成并更新歌单文档中的 fileID
+      const result = await cloudApi.getPlaylistQRCode(playlistId, true)
+
+      if (result && result.fileUrl) {
+        this.setData({
+          qrCodeUrl: result.fileUrl,
+          qrCodeFileID: result.fileID || '',
+          isRealQRCode: true,
+          qrFromCache: false
+        })
+        wx.showToast({ title: '已重新生成', icon: 'success' })
+      } else {
+        this.generateCanvasQRCode()
+      }
+    } catch (err) {
+      console.error('重新生成失败:', err)
       this.generateCanvasQRCode()
     } finally {
       wx.hideLoading()
@@ -347,8 +328,7 @@ Page({
     )
 
     if (performance) {
-      // 更新演出演唱列表
-      data.updatePerformanceSingingList(testData.songs)
+      // 注意：不再更新演出的演唱列表，因为现在直接使用歌单歌曲
       console.log('测试演出已创建:', performance)
     }
 

@@ -126,12 +126,28 @@ Page({
     })
   },
 
+  // 获取歌单歌曲
+  getPlaylistSongs() {
+    // 优先从本地存储获取演唱列表（包含点歌和点赞数据）
+    let singingList = data.getSingingList()
+    if (singingList && singingList.length > 0) {
+      return singingList
+    }
+    // 否则从歌单获取
+    const performance = data.getCurrentPerformance()
+    if (performance && performance.playlistId) {
+      const playlist = data.getPlaylistById(performance.playlistId)
+      return playlist ? playlist.songs : []
+    }
+    return []
+  },
+
   // 从用户曲库初始化歌曲
   async initSongLibraryFromUserLibrary() {
     try {
-      // 获取演唱列表中已有的歌曲ID
+      // 获取演唱列表中已有的歌曲ID（直接使用歌单歌曲）
       const performance = data.getCurrentPerformance()
-      const singingList = performance ? performance.singingList || [] : []
+      const singingList = this.getPlaylistSongs() // 直接使用歌单歌曲
       const singingSongIds = singingList.map(s => s.id)
 
       // 优先使用演出中的歌手ID
@@ -291,7 +307,7 @@ Page({
   },
 
   // 确认点歌
-  confirmPointSong() {
+  async confirmPointSong() {
     const { selectedSong, pointMessage, orderedSongIds, performanceId } = this.data
 
     if (!selectedSong || !selectedSong.id) {
@@ -307,8 +323,8 @@ Page({
       return
     }
 
-    // 获取演唱列表
-    let singingList = performance.singingList || []
+    // 获取演唱列表（直接使用歌单歌曲）
+    let singingList = this.getPlaylistSongs()
 
     // 检查用户是否已经点过这首歌
     if (orderedSongIds.includes(selectedSong.id)) {
@@ -334,8 +350,18 @@ Page({
     // 添加到演唱列表
     singingList.push(newSong)
 
-    // 更新演出的演唱列表
-    data.updatePerformanceSingingList(singingList)
+    // 保存演唱列表到本地存储
+    data.setSingingList(singingList)
+
+    // 同步到云端（让演唱页面能跨设备获取更新）
+    if (performanceId) {
+      try {
+        await cloudApi.updatePerformanceSingingList(performanceId, singingList)
+        console.log('点歌已同步到云端')
+      } catch (err) {
+        console.error('同步点歌到云端失败:', err)
+      }
+    }
 
     // 保存点歌记录
     const orderedSongs = wx.getStorageSync('orderedSongs') || []

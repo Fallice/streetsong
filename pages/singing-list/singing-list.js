@@ -2,6 +2,7 @@
 const util = require('../../utils/util.js')
 const data = require('../../utils/data.js')
 const db = require('../../utils/database.js')
+const cloudApi = require('../../utils/cloudApi.js')
 
 Page({
   data: {
@@ -66,8 +67,15 @@ Page({
   },
 
   onShow() {
-    // 每次显示页面时检查演出状态
-    this.checkPerformanceStatus()
+    // 每次显示页面时检查演出状态，并确保使用最新歌单数据
+    const refreshData = async () => {
+      const playlist = this.data.playlist || await this.getPlaylistFromCloud(this.data.playlistId) || data.getPlaylistById(this.data.playlistId)
+      if (playlist) {
+        this.setData({ playlist })
+        this.checkPerformanceStatus(playlist)
+      }
+    }
+    refreshData()
 
     // 检查页面是否需要滚动
     setTimeout(() => {
@@ -100,15 +108,15 @@ Page({
     console.log('歌单ID:', this.data.playlistId)
 
     try {
-      // 先尝试从本地存储获取（歌手自己的手机）
-      let playlist = data.getPlaylistById(this.data.playlistId)
-      console.log('本地歌单查询结果:', playlist)
+      // 优先从云端获取最新歌单数据
+      let playlist = await this.getPlaylistFromCloud(this.data.playlistId)
+      console.log('云端歌单查询结果:', playlist)
 
-      // 如果本地没有，从云数据库获取
+      // 如果云端没有，再尝试从本地存储获取
       if (!playlist) {
-        console.log('本地未找到歌单，从云端获取')
-        playlist = await this.getPlaylistFromCloud(this.data.playlistId)
-        console.log('云端歌单查询结果:', playlist)
+        console.log('云端未找到歌单，从本地获取')
+        playlist = data.getPlaylistById(this.data.playlistId)
+        console.log('本地歌单查询结果:', playlist)
       }
 
       if (!playlist) {
@@ -130,7 +138,7 @@ Page({
       wx.hideLoading()
 
       // 检查演出状态 - 确保获取最新数据
-      this.checkPerformanceStatus()
+      this.checkPerformanceStatus(playlist)
     } catch (error) {
       console.error('初始化页面失败:', error)
       wx.hideLoading()
@@ -195,21 +203,37 @@ Page({
   },
 
   // 检查演出状态
-  async checkPerformanceStatus() {
+  async checkPerformanceStatus(playlist) {
     const { playlistId } = this.data
 
     console.log('检查演出状态，歌单ID:', playlistId)
 
     // 先从本地存储获取
-    let performance = data.getCurrentPerformance()
+    let localPerformance = data.getCurrentPerformance()
+    // 同时也从云端获取演出信息
+    let cloudPerformance = await this.getPerformanceFromCloud(playlistId)
 
-    // 如果本地没有，尝试从云端获取
-    if (!performance) {
-      console.log('本地未找到演出信息，尝试从云端获取')
-      performance = await this.getPerformanceFromCloud(playlistId)
+    console.log('本地演出:', localPerformance, '云端演出:', cloudPerformance)
+
+    // 始终优先使用云端数据（云端是最新的）
+    let performance = cloudPerformance
+
+    // 如果云端有演出，同步到本地
+    if (performance && performance.status === 'ongoing' && performance.playlistId === playlistId) {
+      console.log('使用云端演出并同步到本地:', performance)
+      try {
+        wx.setStorageSync('performance', performance)
+      } catch (error) {
+        console.error('同步云端演出到本地失败:', error)
+      }
+    } else if (localPerformance && localPerformance.status === 'ongoing' && localPerformance.playlistId === playlistId) {
+      // 云端没有但本地有，使用本地
+      performance = localPerformance
+    } else {
+      performance = null
     }
 
-    console.log('当前演出信息:', performance)
+    console.log('最终使用的演出信息:', performance)
 
     // 检查是否是当前歌单的演出
     const hasOngoingPerformance = performance &&
@@ -219,17 +243,17 @@ Page({
     console.log('是否有进行中的演出:', hasOngoingPerformance)
 
     if (hasOngoingPerformance) {
-      // 演出进行中
-      const singingList = performance.singingList || []
-      const currentIndex = performance.currentIndex || 0
+      // 演出进行中，确保获取最新的演出数据
+      performance = data.getCurrentPerformance() || performance
 
       // 检查是否是新的演出（与之前不同的演出ID）
       const previousPerformanceId = wx.getStorageSync('previousPerformanceId')
-      if (performance.id !== previousPerformanceId) {
-        // 新演出，清空点歌记录
+      const isNewPerformance = performance.id !== previousPerformanceId
+
+      if (isNewPerformance) {
+        // 新演出，清空点歌记录和点赞记录
         wx.setStorageSync('orderedSongs', [])
         wx.setStorageSync('previousPerformanceId', performance.id)
-        // 清空点赞记录
         wx.setStorageSync('userLikes', {})
         this.setData({
           hasOrderedSong: false,
@@ -247,9 +271,37 @@ Page({
         })
       }
 
+      // 优先从云端获取演唱列表（跨设备同步），云端没有则用本地，本地也没有则用歌单初始化
+      let singingList = null
+      if (performance.id) {
+        try {
+          const cloudData = await cloudApi.getPerformanceSingingList(performance.id)
+          if (cloudData && cloudData.singingList && cloudData.singingList.length > 0) {
+            singingList = cloudData.singingList
+          }
+        } catch (err) {
+          console.log('从云端获取演唱列表失败:', err)
+        }
+      }
+
+      if (!singingList || singingList.length === 0) {
+        singingList = data.getSingingList()
+      }
+      if (!singingList || singingList.length === 0 || isNewPerformance) {
+        singingList = playlist.songs
+      }
+      // 统一归一化歌曲ID：确保每条歌曲都有 id 字段
+      singingList = singingList.map(s => ({ ...s, id: s.id || s._id || '' }))
+      data.setSingingList(singingList)
+      const currentIndex = performance.currentIndex || 0
+
+      console.log('演出的 currentIndex:', currentIndex)
+
       // 根据当前演唱索引计算当前歌曲和下一首歌曲
       const currentSong = singingList[currentIndex] || null
       const nextSong = (currentIndex + 1 < singingList.length) ? singingList[currentIndex + 1] : null
+
+      console.log('设置当前歌曲:', currentSong?.name, '索引:', currentIndex)
 
       this.setData({
         hasPerformance: true,
@@ -300,6 +352,7 @@ Page({
   // 从云数据库获取演出信息
   async getPerformanceFromCloud(playlistId) {
     try {
+      console.log('正在从云端获取演出信息，歌单ID:', playlistId)
       const result = await wx.cloud.callFunction({
         name: 'api',
         data: {
@@ -310,20 +363,27 @@ Page({
         }
       })
 
+      console.log('云函数响应:', result)
+
       if (result.result && result.result.success) {
         const performances = result.result.data || []
+        console.log('所有演出信息:', performances)
         // 找到进行中的演出
         const ongoing = performances.find(p => p.status === 'ongoing')
+        console.log('进行中的演出:', ongoing)
         if (ongoing) {
-          return {
+          const performance = {
             id: ongoing.id || ongoing._id,
             playlistId: ongoing.playlistId,
             singerId: ongoing.userId || ongoing.singerId,
             singerName: ongoing.singerName,
             status: ongoing.status,
-            singingList: ongoing.singingList || [],
+            currentIndex: ongoing.currentIndex || 0,
+            sungCount: ongoing.sungCount || 0,
             title: ongoing.title || '演出中'
           }
+          console.log('返回的演出信息:', performance)
+          return performance
         }
       }
       return null
@@ -334,45 +394,87 @@ Page({
   },
 
   // 刷新演唱列表
-  refreshSingingList() {
-    const { hasPerformance, performance } = this.data
+  async refreshSingingList() {
+    const { hasPerformance, playlist } = this.data
 
-    // 无论当前是否显示演出状态，都要检查最新的演出数据
-    const currentPerformance = data.getCurrentPerformance()
+    // 优先从云端获取最新的演出数据，确保与演唱页面同步
+    let currentPerformance = await this.getPerformanceFromCloud(this.data.playlistId)
+
+    // 如果云端没有，再从本地存储获取
+    if (!currentPerformance) {
+      console.log('云端未找到演出信息，尝试从本地获取')
+      currentPerformance = data.getCurrentPerformance()
+    }
     const isOngoing = currentPerformance &&
                        currentPerformance.status === 'ongoing' &&
                        currentPerformance.playlistId === this.data.playlistId
 
-    // 如果演出状态发生变化，立即更新
+    console.log('刷新演唱列表，演出状态:', isOngoing, 'currentIndex:', currentPerformance?.currentIndex, '演出ID:', currentPerformance?.id)
+
+    // 如果演出状态发生变化，重新检查演出状态
     if (isOngoing !== hasPerformance) {
-      this.checkPerformanceStatus()
+      console.log('演出状态发生变化，重新检查演出状态')
+      this.checkPerformanceStatus(playlist)
       return
     }
 
     if (isOngoing && currentPerformance) {
-      // 检查演出ID是否匹配
-      if (performance && currentPerformance.id === performance.id) {
-        const singingList = currentPerformance.singingList || []
-        const currentIndex = currentPerformance.currentIndex || 0
+      const performanceId = currentPerformance.id
+      const currentIndex = currentPerformance.currentIndex || 0
 
-        // 检查是否有变化：不仅检查长度和索引，还检查歌曲内容是否变化
-        const hasChanged = this.hasSingingListChanged(singingList, currentIndex)
-
-        if (hasChanged) {
-          // 根据当前演唱索引计算当前歌曲和下一首歌曲
-          const currentSong = singingList[currentIndex] || null
-          const nextSong = (currentIndex + 1 < singingList.length) ? singingList[currentIndex + 1] : null
-
-          this.setData({
-            singingList: singingList,
-            currentIndex: currentIndex,
-            currentSong: currentSong,
-            nextSong: nextSong
-          })
+      // 优先从云端获取演唱列表（跨设备同步）
+      let singingList = null
+      if (performanceId) {
+        try {
+          const cloudData = await cloudApi.getPerformanceSingingList(performanceId)
+          if (cloudData && cloudData.singingList && cloudData.singingList.length > 0) {
+            singingList = cloudData.singingList.map(s => ({ ...s, id: s.id || s._id || '' }))
+            // 同步到本地存储
+            data.setSingingList(singingList)
+          }
+        } catch (err) {
+          console.log('从云端获取演唱列表失败:', err)
         }
-      } else if (isOngoing) {
-        // 如果演出ID不匹配，重新检查演出状态
-        this.checkPerformanceStatus()
+      }
+
+      // 云端没有则使用本地存储，本地也没有则用歌单歌曲
+      if (!singingList || singingList.length === 0) {
+        singingList = data.getSingingList()
+        if (!singingList || singingList.length === 0) {
+          singingList = playlist.songs
+        }
+      }
+      singingList = singingList.map(s => ({ ...s, id: s.id || s._id || '' }))
+
+      // 同步云端演出信息到本地
+      try {
+        wx.setStorageSync('performance', currentPerformance)
+      } catch (error) {
+        console.error('同步云端演出到本地失败:', error)
+      }
+
+      // 检测变化：索引变化或演唱列表变化
+      const indexChanged = this.data.currentIndex !== currentIndex
+      const currentPageList = this.data.singingList
+      const listChanged = singingList.length !== currentPageList.length ||
+        singingList.some((s, i) => {
+          const cur = currentPageList[i]
+          return !cur || s.id !== cur.id || (s.priority || 0) !== (cur.priority || 0)
+        })
+
+      if (indexChanged || listChanged) {
+        const currentSong = singingList[currentIndex] || null
+        const nextSong = (currentIndex + 1 < singingList.length) ? singingList[currentIndex + 1] : null
+
+        console.log('更新列表，索引变化:', indexChanged, '列表变化:', listChanged)
+
+        this.setData({
+          singingList: singingList,
+          currentIndex: currentIndex,
+          currentSong: currentSong,
+          nextSong: nextSong,
+          performance: currentPerformance
+        })
       }
     } else if (hasPerformance) {
       // 演出已结束，更新状态
@@ -428,8 +530,9 @@ Page({
   },
 
   // 爱心点赞
-  likeSong(e) {
-    const { songId } = e.currentTarget.dataset
+  async likeSong(e) {
+    const songId = e.currentTarget.dataset.songId
+    console.log('likeSong 点击, songId:', songId, 'dataset:', e.currentTarget.dataset)
 
     // 检查是否正在演出
     if (!this.data.hasPerformance) {
@@ -438,7 +541,7 @@ Page({
     }
 
     // 检查是否已经点赞过
-    const userLikes = this.data.userLikes
+    const userLikes = { ...this.data.userLikes }
     if (userLikes[songId]) {
       util.showToast('您已经为这首歌点过心了')
       return
@@ -448,6 +551,7 @@ Page({
     const singingList = [...this.data.singingList]
     // 直接通过 songId 找到对应的歌曲，而不是依赖 index
     const song = singingList.find(s => s.id === songId)
+    console.log('找到的歌曲:', song)
     if (song) {
       song.priority = (song.priority || 0) + 1
 
@@ -462,17 +566,27 @@ Page({
 
       const newList = [...firstTwo, ...rest]
 
-      // 更新演出的演唱列表
-      data.updatePerformanceSingingList(newList)
+      // 保存更新后的演唱列表到本地存储
+      data.setSingingList(newList)
 
       // 记录用户点赞
       userLikes[songId] = true
-      // 存储到本地存储
       wx.setStorageSync('userLikes', userLikes)
       this.setData({
         singingList: newList,
-        userLikes: { ...userLikes } // 使用展开运算符确保触发更新
+        userLikes: userLikes
       })
+
+      // 同步到云端（让演唱页面能跨设备获取更新）
+      const performanceId = this.data.performance?.id
+      if (performanceId) {
+        try {
+          await cloudApi.updatePerformanceSingingList(performanceId, newList)
+          console.log('点赞已同步到云端')
+        } catch (err) {
+          console.error('同步点赞到云端失败:', err)
+        }
+      }
 
       util.showToast('支持成功！')
     }
@@ -527,8 +641,7 @@ Page({
     )
 
     if (performance) {
-      // 设置演唱列表
-      data.updatePerformanceSingingList(playlist.songs)
+      // 注意：不再设置演出的演唱列表，因为现在直接使用歌单歌曲
 
       // 刷新状态
       this.checkPerformanceStatus()

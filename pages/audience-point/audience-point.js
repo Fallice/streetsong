@@ -140,12 +140,7 @@ Page({
       singingList = [...playlist.songs]
       data.setSingingList(singingList)
 
-      // 如果有演出ID，更新演出的演唱列表
-      if (this.data.performanceId) {
-        db.PerformanceDB.updatePerformance(this.data.performanceId, {
-          singingList: singingList
-        })
-      }
+      // 注意：不再更新演出的演唱列表，因为现在直接使用歌单歌曲
     }
 
     this.setData({
