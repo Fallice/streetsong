@@ -4,7 +4,6 @@ page {
   display: flex;
   flex-direction: column;
   background: #FAF7F2;
-  overflow: hidden;
 }
 
 /* ===== 加载状态 ===== */
@@ -37,9 +36,12 @@ page {
   font-weight: 500;
 }
 
-.container {
+.scrollarea {
   flex: 1;
   overflow-y: auto;
+}
+
+.container {
   padding: 32rpx;
   padding-bottom: 200rpx;
 }
@@ -98,6 +100,13 @@ page {
   justify-content: center;
 }
 
+/* ===== 固定搜索栏（在滚动区外） ===== */
+.search-bar-fixed {
+  flex-shrink: 0;
+  padding: 0 32rpx 20rpx;
+  background: #FAF7F2;
+}
+
 /* ===== 搜索栏 ===== */
 .search-bar {
   display: flex;
@@ -106,7 +115,6 @@ page {
   background: #FFFFFF;
   border-radius: 16rpx;
   padding: 20rpx 24rpx;
-  margin-bottom: 24rpx;
   box-shadow: 0 2rpx 12rpx rgba(44, 36, 25, 0.04);
 }
 

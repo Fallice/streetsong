@@ -1,6 +1,16 @@
 <navigation-bar title="我的曲库" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
 
-<view class="container">
+<!-- 固定搜索栏（不在滚动区内，避免滚动时闪烁） -->
+<view wx:if="{{allSongs.length > 0 && songs !== null}}" class="search-bar-fixed">
+  <view class="search-bar">
+    <icon name="search" size="28rpx" color="#B5A99A" />
+    <input class="search-input" placeholder="搜索歌曲或歌手" value="{{searchQuery}}" bindinput="onSearchInput" confirm-type="search" />
+    <text wx:if="{{searchQuery}}" class="search-clear" bindtap="clearSearch">✕</text>
+  </view>
+</view>
+
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
   <!-- 加载状态 -->
   <view wx:if="{{songs === null}}" class="loading-state">
     <view class="loading-spinner"></view>
@@ -20,15 +30,8 @@
     </view>
   </view>
 
-  <!-- 歌曲列表 -->
+  <!-- 歌曲列表 / 搜索无结果 -->
   <view wx:else class="song-list-section">
-    <!-- 搜索栏 -->
-    <view class="search-bar">
-      <icon name="search" size="28rpx" color="#B5A99A" />
-      <input class="search-input" placeholder="搜索歌曲或歌手" value="{{searchQuery}}" bindinput="onSearchInput" confirm-type="search" />
-      <text wx:if="{{searchQuery}}" class="search-clear" bindtap="clearSearch">✕</text>
-    </view>
-
     <view wx:if="{{songs.length === 0}}" class="search-empty">
       <text class="search-empty-text">未找到匹配的歌曲</text>
     </view>
@@ -55,7 +58,8 @@
     </view>
   </view>
   </view>
-</view>
+  </view>
+</scroll-view>
 
 <!-- 添加按钮（悬浮） -->
 <view wx:if="{{allSongs.length > 0}}" class="fab-add" bindtap="showAddSheet">

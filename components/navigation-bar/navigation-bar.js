@@ -56,45 +56,37 @@ Component({
    */
   data: {
     displayStyle: '',
-    // 默认值，避免组件初始化时样式未设置导致的闪烁
     ios: false,
-    innerPaddingRight: 'padding-right: 20px',
-    leftWidth: 'width: 20px',
-    safeAreaTop: 'height: calc(var(--height) + 20px); padding-top: 20px'
+    innerPaddingRight: '',
+    leftWidth: '',
+    safeAreaTop: ''
   },
   lifetimes: {
-    attached() {
-      // 在组件刚被创建时，先使用默认样式，避免闪烁
-      // 然后异步获取系统信息并更新
-      setTimeout(() => {
-        try {
-          // 获取系统信息
-          const systemInfo = wx.getSystemInfoSync()
-          const rect = wx.getMenuButtonBoundingClientRect()
-          const platform = systemInfo.platform
-          const isAndroid = platform === 'android'
-          const isDevtools = platform === 'devtools'
-          const windowWidth = systemInfo.windowWidth
-          const safeAreaTop = systemInfo.safeArea.top || 0
+    created() {
+      try {
+        const systemInfo = wx.getSystemInfoSync()
+        const rect = wx.getMenuButtonBoundingClientRect()
+        const isAndroid = systemInfo.platform === 'android'
+        const windowWidth = systemInfo.windowWidth
+        const safeAreaTop = systemInfo.safeArea.top || 0
 
-          this.setData({
-            ios: !isAndroid,
-            innerPaddingRight: `padding-right: ${windowWidth - rect.left}px`,
-            leftWidth: `width: ${windowWidth - rect.left}px`,
-            safeAreaTop: `height: calc(var(--height) + ${safeAreaTop}px); padding-top: ${safeAreaTop}px`
-          })
-        } catch (error) {
-          console.error('获取导航栏信息失败:', error)
-          // 使用默认值
-          this.setData({
-            ios: false,
-            innerPaddingRight: 'padding-right: 20px',
-            leftWidth: 'width: 20px',
-            safeAreaTop: 'height: calc(var(--height) + 20px); padding-top: 20px'
-          })
-        }
-      }, 0)
+        this.setData({
+          ios: !isAndroid,
+          innerPaddingRight: `padding-right: ${windowWidth - rect.left}px`,
+          leftWidth: `width: ${windowWidth - rect.left}px`,
+          safeAreaTop: `height: calc(var(--height) + ${safeAreaTop}px); padding-top: ${safeAreaTop}px`
+        })
+      } catch (e) {
+        // 回退默认值
+        this.setData({
+          ios: false,
+          innerPaddingRight: 'padding-right: 20px',
+          leftWidth: 'width: 20px',
+          safeAreaTop: 'height: calc(var(--height) + 20px); padding-top: 20px'
+        })
+      }
     },
+    attached() {},
   },
   /**
    * 组件的方法列表
