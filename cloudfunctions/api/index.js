@@ -147,6 +147,10 @@ exports.main = async (event, context) => {
         result = await getPlaylistQRCode(data.playlistId, data.forceRefresh)
         break
 
+      case 'importQQPlaylist':
+        result = await importQQPlaylist(data.userId, data.playlistId)
+        break
+
       default:
         return { success: false, error: '未知的操作类型' }
     }
@@ -818,6 +822,156 @@ async function getPlaylistQRCode(playlistId, forceRefresh) {
   } catch (err) {
     console.error('获取歌单二维码失败:', err)
     throw err
+  }
+}
+
+// 导入QQ音乐歌单
+async function importQQPlaylist(userId, playlistId) {
+  console.log('importQQPlaylist 开始:', { userId, playlistId })
+
+  try {
+    // 1. 调用QQ音乐API获取歌单（使用内置https模块）
+    const https = require('https')
+    const apiUrl = `/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg?type=1&json=1&utf8=1&onlysong=0&disstid=${playlistId}&format=json&g_tk=5381&notice=0&platform=yqq.json&needNewCode=0`
+
+    const data = await new Promise((resolve, reject) => {
+      const req = https.request({
+        hostname: 'c.y.qq.com',
+        path: apiUrl,
+        method: 'GET',
+        headers: {
+          'Referer': 'https://y.qq.com/',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        },
+        timeout: 15000
+      }, (res) => {
+        let body = ''
+        res.on('data', chunk => { body += chunk })
+        res.on('end', () => {
+          try {
+            resolve(JSON.parse(body))
+          } catch (e) {
+            reject(new Error('解析歌单数据失败'))
+          }
+        })
+      })
+      req.on('error', reject)
+      req.on('timeout', () => { req.destroy(); reject(new Error('请求超时')) })
+      req.end()
+    })
+
+    if (data.code !== 0 || !data.cdlist || !data.cdlist[0]) {
+      console.error('QQ音乐API返回异常:', data)
+      return { success: false, error: '无法获取歌单信息，请检查链接是否正确' }
+    }
+
+    const cd = data.cdlist[0]
+    const playlistName = cd.dissname
+    const songlist = cd.songlist || []
+
+    if (songlist.length === 0) {
+      return { success: false, error: '歌单中没有任何歌曲' }
+    }
+
+    console.log(`获取到歌单 "${playlistName}"，共 ${songlist.length} 首歌曲`)
+
+    // 2. 获取用户现有曲库
+    const libraryRes = await db.collection(COLLECTIONS.USER_LIBRARIES)
+      .where({ userId })
+      .get()
+
+    let library = null
+    let existingSongs = []
+
+    if (libraryRes.data.length > 0) {
+      library = libraryRes.data[0]
+      existingSongs = library.songs || []
+    }
+
+    // 3. 构建现有歌曲的唯一键集合（歌名+歌手，忽略大小写和空格）
+    const existingKeys = new Set(
+      existingSongs.map(s => `${s.name.trim().toLowerCase()}|${s.artist.trim().toLowerCase()}`)
+    )
+
+    // 4. 解析并去重
+    const allSongs = []
+    const importedSongs = []
+    let skippedCount = 0
+
+    for (const item of songlist) {
+      const name = (item.songname || '').trim()
+      const singer = item.singer || []
+      const artist = singer.map(s => s.name).join('/').trim() || '未知歌手'
+
+      if (!name) continue
+
+      const key = `${name.toLowerCase()}|${artist.toLowerCase()}`
+
+      allSongs.push({ name, artist })
+
+      if (existingKeys.has(key)) {
+        skippedCount++
+        continue
+      }
+
+      // 避免本次导入中的重复
+      if (importedSongs.some(s => s.name === name && s.artist === artist)) {
+        continue
+      }
+
+      const song = {
+        _id: generateId(),
+        name,
+        artist,
+        createdAt: Date.now()
+      }
+
+      importedSongs.push(song)
+      existingKeys.add(key)
+    }
+
+    console.log(`去重后: 导入 ${importedSongs.length} 首，跳过 ${skippedCount} 首`)
+
+    // 5. 写入数据库
+    if (importedSongs.length > 0) {
+      if (library) {
+        // 追加到已有曲库
+        await db.collection(COLLECTIONS.USER_LIBRARIES).doc(library._id).update({
+          data: {
+            songs: _.push(importedSongs),
+            updatedAt: db.serverDate()
+          }
+        })
+      } else {
+        // 创建新曲库
+        await db.collection(COLLECTIONS.USER_LIBRARIES).add({
+          data: {
+            userId,
+            songs: importedSongs,
+            createdAt: db.serverDate(),
+            updatedAt: db.serverDate()
+          }
+        })
+      }
+    }
+
+    return {
+      success: true,
+      totalCount: allSongs.length,
+      importedCount: importedSongs.length,
+      skippedCount,
+      importedSongs: importedSongs.map(s => ({ name: s.name, artist: s.artist })),
+      playlistName
+    }
+  } catch (err) {
+    console.error('导入歌单失败:', err)
+    if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
+      return { success: false, error: '无法连接QQ音乐服务器，请稍后重试' }
+    }
+    if (err.message.includes('timeout') || err.message.includes('超时')) {
+      return { success: false, error: '请求超时，请检查网络后重试' }
+    }
+    return { success: false, error: err.message || '导入失败' }
   }
 }
 

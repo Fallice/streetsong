@@ -20,7 +20,8 @@ Page({
       message: ''
     },
     userLikes: {},
-    hasOrderedSong: false,
+    orderedCount: 0,
+    maxOrderLimit: 3,
     showError: false,
     errorMsg: '',
     performanceId: null, // 演出ID
@@ -50,6 +51,16 @@ Page({
       util.showToast('获取用户信息失败')
       wx.navigateBack()
     })
+  },
+
+  onShow() {
+    // 从存储同步已点歌数量
+    const orderedSongs = wx.getStorageSync('orderedSongs') || []
+    const perfId = this.data.performanceId
+    const count = perfId
+      ? orderedSongs.filter(s => s.performanceId === perfId).length
+      : orderedSongs.length
+    this.setData({ orderedCount: count })
   },
 
   // 开始扫描
@@ -221,14 +232,15 @@ Page({
 
   // 跳转到点歌选择页面
   showPointModal() {
-    if (this.data.hasOrderedSong) {
-      util.showToast('本场演出您已经点过歌了')
+    if (this.data.orderedCount >= this.data.maxOrderLimit) {
+      util.showToast(`本场演出最多点${this.data.maxOrderLimit}首歌，您已点满`)
       return
     }
 
     // 跳转到新的点歌选择页面
+    const perfId = this.data.performanceId || ''
     wx.navigateTo({
-      url: `/pages/point-song/point-song?playlistId=${this.data.playlistId}&hasOrderedSong=${this.data.hasOrderedSong}`
+      url: `/pages/point-song/point-song?playlistId=${this.data.playlistId}&performanceId=${perfId}`
     })
   },
 })

@@ -12,7 +12,8 @@ Page({
     currentSong: null,
     nextSong: null,
     userLikes: {},
-    hasOrderedSong: false,
+    orderedCount: 0,
+    maxOrderLimit: 3,
     orderedSongIds: [], // 已点歌曲ID列表
     // 演出状态
     hasPerformance: false,
@@ -256,7 +257,7 @@ Page({
         wx.setStorageSync('previousPerformanceId', performance.id)
         wx.setStorageSync('userLikes', {})
         this.setData({
-          hasOrderedSong: false,
+          orderedCount: 0,
           orderedSongIds: [],
           userLikes: {}
         })
@@ -265,7 +266,7 @@ Page({
         const orderedSongs = wx.getStorageSync('orderedSongs') || []
         const userLikes = wx.getStorageSync('userLikes') || {}
         this.setData({
-          hasOrderedSong: orderedSongs.length > 0,
+          orderedCount: orderedSongs.length,
           orderedSongIds: orderedSongs.map(s => s.id),
           userLikes: userLikes
         })
@@ -594,8 +595,8 @@ Page({
 
   // 跳转到点歌页面
   goToPointSongPage() {
-    if (this.data.hasOrderedSong) {
-      util.showToast('本场演出您已经点过歌了')
+    if (this.data.orderedCount >= this.data.maxOrderLimit) {
+      util.showToast(`本场演出最多点${this.data.maxOrderLimit}首歌，您已点满`)
       return
     }
 
@@ -613,8 +614,9 @@ Page({
     }
     wx.setStorageSync('currentSinger', singerInfo)
 
+    const perfId = this.data.performance ? this.data.performance.id : ''
     wx.navigateTo({
-      url: `/pages/point-song/point-song?playlistId=${this.data.playlistId}&hasOrderedSong=${this.data.hasOrderedSong}`
+      url: `/pages/point-song/point-song?playlistId=${this.data.playlistId}&performanceId=${perfId}`
     })
   },
 

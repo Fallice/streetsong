@@ -131,6 +131,11 @@ const cloud = {
 
   updatePointRecordStatus(recordId, status) {
     return this.callFunction('updatePointRecordStatus', { recordId, status })
+  },
+
+  // ========== 歌单导入相关 ==========
+  importQQPlaylist(userId, playlistId) {
+    return this.callFunction('importQQPlaylist', { userId, playlistId })
   }
 }
 

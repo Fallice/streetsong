@@ -6,6 +6,9 @@ Page({
   data: {
     userInfo: null,
     songs: null, // 初始化为 null，避免先显示空状态
+    allSongs: [], // 完整歌曲列表（不受搜索过滤影响）
+    searchQuery: '', // 搜索关键词
+    showAddSheet: false, // 添加方式选择弹窗
     showActionSheet: false,
     currentSongId: null,
     currentIndex: null
@@ -35,19 +38,65 @@ Page({
 
     try {
       const library = await cloudApi.getLibrary(userInfo.id)
-      this.setData({
-        songs: library ? library.songs : []
-      })
+      const allSongs = library ? library.songs : []
+      this.setData({ allSongs })
+      this.filterSongs()
     } catch (err) {
       console.error('获取曲库失败:', err)
       wx.showToast({ title: '获取失败', icon: 'none' })
     }
   },
 
-  // 跳转到添加歌曲页面
-  goToAddSong() {
+  // 搜索输入
+  onSearchInput(e) {
+    this.setData({ searchQuery: e.detail.value })
+    this.filterSongs()
+  },
+
+  // 清除搜索
+  clearSearch() {
+    this.setData({ searchQuery: '' })
+    this.filterSongs()
+  },
+
+  // 根据搜索关键词过滤歌曲
+  filterSongs() {
+    const { allSongs, searchQuery } = this.data
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) {
+      this.setData({ songs: allSongs })
+      return
+    }
+    const filtered = allSongs.filter(song =>
+      song.name.toLowerCase().includes(query) ||
+      song.artist.toLowerCase().includes(query)
+    )
+    this.setData({ songs: filtered })
+  },
+
+  // 显示添加方式选择弹窗
+  showAddSheet() {
+    this.setData({ showAddSheet: true })
+  },
+
+  // 隐藏添加方式选择弹窗
+  hideAddSheet() {
+    this.setData({ showAddSheet: false })
+  },
+
+  // 手动添加歌曲
+  goManualAdd() {
+    this.hideAddSheet()
     wx.navigateTo({
       url: '/pages/library-add/library-add'
+    })
+  },
+
+  // 歌单导入
+  goPlaylistImport() {
+    this.hideAddSheet()
+    wx.navigateTo({
+      url: '/pages/playlist-import/playlist-import'
     })
   },
 

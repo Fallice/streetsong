@@ -16,6 +16,7 @@
     <!-- 曲库信息 -->
     <view class="library-info" wx:if="{{!searchText}}">
       <text class="library-text">歌手曲库，共计 {{songLibrary.length}} 首</text>
+      <text class="quota-text">本场已点 {{orderedCount}}/{{maxOrderLimit}} 首{{orderedCount >= maxOrderLimit ? '（已满）' : ''}}</text>
     </view>
 
     <!-- 搜索结果信息 -->
@@ -79,7 +80,7 @@
 
     <!-- 点歌按钮 -->
     <view class="modal-footer">
-      <button class="point-btn-modal" bindtap="confirmPointSong">点歌</button>
+      <button class="point-btn-modal" bindtap="confirmPointSong">确认点歌（剩余{{maxOrderLimit - orderedCount}}次）</button>
     </view>
   </view>
 </view>

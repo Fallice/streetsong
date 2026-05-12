@@ -2,10 +2,15 @@
 <navigation-bar title="{{isEdit ? '修改歌曲' : '添加歌曲'}}" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
 
 <view class="container">
-  <!-- 页面标题 -->
+  <!-- 页面标题 + 添加按钮 -->
   <view class="page-header">
-    <view class="page-title">{{isEdit ? '修改歌曲' : '添加歌曲'}}</view>
-    <view class="page-subtitle">{{isEdit ? '修改歌曲信息' : '添加歌曲到你的曲库'}}</view>
+    <view class="header-left">
+      <view class="page-title">{{isEdit ? '修改歌曲' : '添加歌曲'}}</view>
+      <view class="page-subtitle">{{isEdit ? '修改歌曲信息' : '添加歌曲到你的曲库'}}</view>
+    </view>
+    <view class="header-right">
+      <text class="add-btn {{songName && artist ? 'enabled' : ''}}" bindtap="onConfirm">{{isEdit ? '保存' : '添加'}}</text>
+    </view>
   </view>
 
   <!-- 歌曲名称输入 -->
@@ -18,12 +23,5 @@
   <view class="input-group">
     <text class="input-label">歌手</text>
     <input class="input" placeholder="请输入歌手名称" value="{{artist}}" bindinput="onArtistInput" />
-  </view>
-
-  <!-- 确认按钮 -->
-  <view class="confirm-section">
-    <button class="confirm-btn {{songName && artist ? 'enabled' : 'disabled'}}" bindtap="onConfirm" disabled="{{!songName || !artist}}">
-      {{isEdit ? '保存修改' : '确认添加'}}
-    </button>
   </view>
 </view>

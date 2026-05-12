@@ -116,11 +116,11 @@
 
 <!-- 底部点歌按钮 -->
 <view class="footer">
-  <button class="point-btn {{!hasPerformance || hasOrderedSong ? 'disabled' : ''}}" bindtap="goToPointSongPage" disabled="{{!hasPerformance || hasOrderedSong}}">
+  <button class="point-btn {{!hasPerformance || orderedCount >= maxOrderLimit ? 'disabled' : ''}}" bindtap="goToPointSongPage" disabled="{{!hasPerformance || orderedCount >= maxOrderLimit}}">
     <icon wx:if="{{!hasPerformance}}" name="pause" size="32rpx" color="#FFFFFF" />
-    <icon wx:elif="{{hasOrderedSong}}" name="check" size="32rpx" color="#FFFFFF" />
+    <icon wx:elif="{{orderedCount >= maxOrderLimit}}" name="check" size="32rpx" color="#FFFFFF" />
     <icon wx:else name="mic" size="32rpx" color="#FFFFFF" />
-    <text>{{!hasPerformance ? '等待演出' : (hasOrderedSong ? '已点歌' : '点歌')}}</text>
+    <text>{{!hasPerformance ? '等待演出' : (orderedCount >= maxOrderLimit ? '已点满' : '点歌（' + orderedCount + '/' + maxOrderLimit + '）')}}</text>
   </button>
 </view>
 

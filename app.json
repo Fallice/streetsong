@@ -15,7 +15,8 @@
     "pages/singing-list/singing-list",
     "pages/audience-point/audience-point",
     "pages/point-song/point-song",
-    "pages/performances/performances"
+    "pages/performances/performances",
+    "pages/playlist-import/playlist-import"
   ],
   "window": {
     "navigationBarTextStyle": "black",

@@ -76,6 +76,14 @@ page {
   font-weight: 500;
 }
 
+.quota-text {
+  display: block;
+  font-size: 26rpx;
+  color: #D4A574;
+  margin-top: 8rpx;
+  font-weight: 500;
+}
+
 .search-text {
   font-size: 28rpx;
   color: #8B7D6B;

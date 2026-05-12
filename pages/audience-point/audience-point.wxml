@@ -91,9 +91,9 @@
 
 <!-- 点歌按钮 -->
 <view class="point-btn-container" wx:if="{{!showScanArea}}">
-  <button class="point-btn {{hasOrderedSong ? 'disabled' : ''}}"
+  <button class="point-btn {{orderedCount >= maxOrderLimit ? 'disabled' : ''}}"
           bindtap="showPointModal"
-          disabled="{{hasOrderedSong}}">
-    {{hasOrderedSong ? '已点歌' : '点歌'}}
+          disabled="{{orderedCount >= maxOrderLimit}}">
+    {{orderedCount >= maxOrderLimit ? '已点满' : '点歌（' + orderedCount + '/' + maxOrderLimit + '）'}}
   </button>
 </view>

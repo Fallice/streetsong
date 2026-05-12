@@ -1,0 +1,87 @@
+<navigation-bar title="歌单导入" back="{{true}}" color="black" background="#FAF7F2"></navigation-bar>
+
+<view class="container">
+  <!-- 输入状态 -->
+  <view wx:if="{{state === 'input'}}" class="input-state">
+    <view class="page-header">
+      <view class="page-title">QQ音乐歌单导入</view>
+      <view class="page-subtitle">粘贴QQ音乐歌单分享链接，一键导入歌曲到你的曲库</view>
+    </view>
+
+    <view class="url-input-group">
+      <text class="input-label">歌单链接</text>
+      <textarea class="url-input" placeholder="粘贴QQ音乐歌单链接，如：https://y.qq.com/n/ryqq_v2/playlist/..." value="{{url}}" bindinput="onUrlInput" maxlength="500" auto-height />
+    </view>
+
+    <view class="tip-box">
+      <text class="tip-title">支持以下格式的链接：</text>
+      <text class="tip-text">· QQ音乐分享链接：y.qq.com/n/ryqq_v2/playlist/...</text>
+      <text class="tip-text">· QQ音乐轻量版链接：i2.y.qq.com/...playlist.html?...&id=...</text>
+    </view>
+
+    <view class="submit-section">
+      <button class="import-btn {{url ? '' : 'disabled'}}" bindtap="startImport" disabled="{{!url}}">导入</button>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{state === 'loading'}}" class="loading-state">
+    <view class="loading-animation">
+      <view class="loading-circle"></view>
+    </view>
+    <view class="loading-text">{{loadingText}}</view>
+    <view class="loading-tip">正在导入中，请勿离开页面</view>
+    <view class="stay-hint">
+      <icon name="info" size="24rpx" color="#D4A574" />
+      <text>离开页面将自动取消导入</text>
+    </view>
+  </view>
+
+  <!-- 成功状态 -->
+  <view wx:if="{{state === 'success'}}" class="result-state">
+    <view class="result-icon success-icon">✓</view>
+    <view class="result-title">导入完成</view>
+    <view class="result-summary">
+      <view class="summary-item">
+        <text class="summary-num">{{result.totalCount}}</text>
+        <text class="summary-label">歌单歌曲</text>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item">
+        <text class="summary-num">{{result.importedCount}}</text>
+        <text class="summary-label">成功导入</text>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item">
+        <text class="summary-num">{{result.skippedCount}}</text>
+        <text class="summary-label">已存在跳过</text>
+      </view>
+    </view>
+
+    <!-- 导入歌曲列表 -->
+    <view wx:if="{{result.importedSongs && result.importedSongs.length > 0}}" class="imported-list">
+      <view class="list-title">已导入歌曲</view>
+      <view wx:for="{{result.importedSongs}}" wx:key="name" class="imported-item">
+        <view class="item-index">{{index + 1}}</view>
+        <view class="item-info">
+          <text class="item-name">{{item.name}}</text>
+          <text class="item-artist">{{item.artist}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="submit-section">
+      <button class="import-btn" bindtap="finishImport">完成</button>
+    </view>
+  </view>
+
+  <!-- 错误状态 -->
+  <view wx:if="{{state === 'error'}}" class="result-state">
+    <view class="result-icon error-icon">✕</view>
+    <view class="result-title">导入失败</view>
+    <view class="result-desc">{{errorMsg}}</view>
+    <view class="submit-section">
+      <button class="import-btn secondary" bindtap="retryImport">重新导入</button>
+    </view>
+  </view>
+</view>

@@ -8,20 +8,32 @@
   </view>
 
   <!-- 空状态 -->
-  <view wx:elif="{{songs.length === 0}}" class="empty-state">
+  <view wx:elif="{{allSongs.length === 0}}" class="empty-state">
     <view class="empty-icon">
       <icon name="music" size="80rpx" color="#D4A574" />
     </view>
     <view class="empty-text">曲库还是空的</view>
     <view class="empty-desc">添加你喜欢的歌曲吧</view>
-    <view class="add-btn" bindtap="goToAddSong">
+    <view class="add-btn" bindtap="showAddSheet">
       <icon name="plus" size="36rpx" color="#FFFFFF" />
       <text>添加歌曲</text>
     </view>
   </view>
 
   <!-- 歌曲列表 -->
-  <view wx:else class="song-list">
+  <view wx:else class="song-list-section">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <icon name="search" size="28rpx" color="#B5A99A" />
+      <input class="search-input" placeholder="搜索歌曲或歌手" value="{{searchQuery}}" bindinput="onSearchInput" confirm-type="search" />
+      <text wx:if="{{searchQuery}}" class="search-clear" bindtap="clearSearch">✕</text>
+    </view>
+
+    <view wx:if="{{songs.length === 0}}" class="search-empty">
+      <text class="search-empty-text">未找到匹配的歌曲</text>
+    </view>
+
+    <view wx:else class="song-list">
     <view wx:for="{{songs}}" wx:key="id" class="song-item">
       <view class="song-index">{{index + 1}}</view>
 
@@ -42,11 +54,30 @@
       </view>
     </view>
   </view>
+  </view>
 </view>
 
 <!-- 添加按钮（悬浮） -->
-<view wx:if="{{songs && songs.length > 0}}" class="fab-add" bindtap="goToAddSong">
+<view wx:if="{{allSongs.length > 0}}" class="fab-add" bindtap="showAddSheet">
   <icon name="plus" size="48rpx" color="#FFFFFF" />
+</view>
+
+<!-- 添加方式选择弹窗 -->
+<view wx:if="{{showAddSheet}}" class="action-sheet-mask" bindtap="hideAddSheet">
+  <view class="action-sheet" catchtap="preventBubble">
+    <view class="sheet-title">添加歌曲</view>
+    <view class="action-item" bindtap="goManualAdd">
+      <text>手动添加</text>
+    </view>
+    <view class="divider"></view>
+    <view class="action-item" bindtap="goPlaylistImport">
+      <text>QQ音乐导入</text>
+    </view>
+    <view class="divider"></view>
+    <view class="action-item cancel" bindtap="hideAddSheet">
+      <text>取消</text>
+    </view>
+  </view>
 </view>
 
 <!-- 更多操作弹窗 -->

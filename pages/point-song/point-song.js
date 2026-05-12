@@ -16,20 +16,25 @@ Page({
     showPointModal: false,
     selectedSong: {},
     pointMessage: '',
-    hasOrderedSong: false,
+    orderedCount: 0,
     orderedSongIds: [],
+    maxOrderLimit: 3,
     hasPerformance: false
   },
 
   onLoad(options) {
-    // 获取已点歌记录
+    // 获取已点歌记录（仅统计当前演出的）
     const orderedSongs = wx.getStorageSync('orderedSongs') || []
-    const orderedSongIds = orderedSongs.map(s => s.id)
+    const performanceId = options.performanceId || ''
+    const currentOrdered = performanceId
+      ? orderedSongs.filter(s => s.performanceId === performanceId)
+      : orderedSongs
+    const orderedSongIds = currentOrdered.map(s => s.id)
 
     if (options.playlistId) {
       this.setData({
         playlistId: options.playlistId,
-        hasOrderedSong: options.hasOrderedSong === 'true',
+        orderedCount: currentOrdered.length,
         orderedSongIds: orderedSongIds
       })
     }
@@ -109,7 +114,7 @@ Page({
       // 演出ID不匹配，说明是新演出，清空点歌记录
       wx.setStorageSync('orderedSongs', [])
       this.setData({
-        hasOrderedSong: false,
+        orderedCount: 0,
         orderedSongIds: []
       })
     }
@@ -267,8 +272,8 @@ Page({
   showPointModal(e) {
     const { song } = e.currentTarget.dataset
 
-    if (this.data.hasOrderedSong) {
-      util.showToast('本场演出您已经点过歌了')
+    if (this.data.orderedCount >= this.data.maxOrderLimit) {
+      util.showToast(`本场演出最多点${this.data.maxOrderLimit}首歌，您已点满`)
       return
     }
 
@@ -373,6 +378,8 @@ Page({
     })
     wx.setStorageSync('orderedSongs', orderedSongs)
 
+    const newOrderedCount = orderedSongs.filter(s => s.performanceId === performanceId).length
+
     util.showToast('点歌成功！')
     this.hidePointModal()
 
@@ -383,7 +390,7 @@ Page({
         const prevPage = pages[pages.length - 2]
         if (prevPage) {
           prevPage.setData({
-            hasOrderedSong: true,
+            orderedCount: newOrderedCount,
             singingList: singingList,
             orderedSongIds: [...orderedSongIds, selectedSong.id]
           })

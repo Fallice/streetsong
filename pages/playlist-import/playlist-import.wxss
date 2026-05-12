@@ -1,0 +1,315 @@
+/* 歌单导入页面 */
+page {
+  background: #FAF7F2;
+}
+
+.container {
+  padding: 32rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ===== 页面头部 ===== */
+.page-header {
+  margin-bottom: 48rpx;
+}
+
+.page-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #2C2419;
+  margin-bottom: 12rpx;
+}
+
+.page-subtitle {
+  font-size: 28rpx;
+  color: #8B7D6B;
+  line-height: 1.6;
+}
+
+/* ===== 输入框 ===== */
+.url-input-group {
+  margin-bottom: 32rpx;
+}
+
+.input-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #5C5143;
+  margin-bottom: 16rpx;
+}
+
+.url-input {
+  width: 100%;
+  min-height: 160rpx;
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 24rpx 28rpx;
+  font-size: 28rpx;
+  color: #2C2419;
+  box-sizing: border-box;
+  border: 2rpx solid #E8E0D4;
+  line-height: 1.6;
+}
+
+.url-input:focus {
+  border-color: #D4A574;
+}
+
+.url-input::placeholder {
+  color: #B5A99A;
+}
+
+/* ===== 提示框 ===== */
+.tip-box {
+  background: rgba(212, 165, 116, 0.08);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 60rpx;
+}
+
+.tip-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #5C5143;
+  margin-bottom: 12rpx;
+}
+
+.tip-text {
+  display: block;
+  font-size: 24rpx;
+  color: #8B7D6B;
+  line-height: 1.8;
+}
+
+/* ===== 提交按钮区域 ===== */
+.submit-section {
+  padding-top: 20rpx;
+}
+
+.import-btn {
+  width: 100%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #D4A574 0%, #B88A5A 100%);
+  color: #FFFFFF;
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4rpx 20rpx rgba(212, 165, 116, 0.4);
+}
+
+.import-btn::after {
+  border: none;
+}
+
+.import-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 12rpx rgba(212, 165, 116, 0.3);
+}
+
+.import-btn[disabled] {
+  background: #E8E0D4;
+  color: #B5A99A;
+  box-shadow: none;
+}
+
+.import-btn.secondary {
+  background: #FFFFFF;
+  color: #D4A574;
+  border: 2rpx solid #D4A574;
+  box-shadow: none;
+}
+
+/* ===== 加载状态 ===== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 160rpx 40rpx;
+}
+
+.loading-animation {
+  margin-bottom: 48rpx;
+}
+
+.loading-circle {
+  width: 100rpx;
+  height: 100rpx;
+  border: 6rpx solid #E8E0D4;
+  border-top: 6rpx solid #D4A574;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2C2419;
+  margin-bottom: 16rpx;
+}
+
+.loading-tip {
+  font-size: 28rpx;
+  color: #8B7D6B;
+  margin-bottom: 32rpx;
+}
+
+.stay-hint {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 16rpx 24rpx;
+  background: rgba(212, 165, 116, 0.08);
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  color: #D4A574;
+}
+
+/* ===== 结果状态 ===== */
+.result-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 0;
+}
+
+.result-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56rpx;
+  font-weight: bold;
+  margin-bottom: 32rpx;
+}
+
+.success-icon {
+  background: rgba(212, 165, 116, 0.12);
+  color: #B88A5A;
+}
+
+.error-icon {
+  background: rgba(224, 122, 95, 0.12);
+  color: #E07A5F;
+}
+
+.result-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #2C2419;
+  margin-bottom: 40rpx;
+}
+
+.result-desc {
+  font-size: 28rpx;
+  color: #8B7D6B;
+  text-align: center;
+  margin-bottom: 60rpx;
+  padding: 0 40rpx;
+  line-height: 1.6;
+}
+
+/* ===== 导入统计 ===== */
+.result-summary {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 32rpx 24rpx;
+  margin-bottom: 40rpx;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 4rpx 16rpx rgba(44, 36, 25, 0.06);
+}
+
+.summary-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.summary-num {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #D4A574;
+}
+
+.summary-label {
+  font-size: 24rpx;
+  color: #8B7D6B;
+}
+
+.summary-divider {
+  width: 2rpx;
+  height: 48rpx;
+  background: #F0EBE3;
+}
+
+/* ===== 已导入歌曲列表 ===== */
+.imported-list {
+  width: 100%;
+  margin-bottom: 40rpx;
+}
+
+.list-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2C2419;
+  margin-bottom: 20rpx;
+}
+
+.imported-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #F5F0E8;
+}
+
+.imported-item:last-child {
+  border-bottom: none;
+}
+
+.item-index {
+  width: 40rpx;
+  font-size: 24rpx;
+  color: #B5A99A;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.item-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.item-name {
+  font-size: 28rpx;
+  color: #2C2419;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-artist {
+  font-size: 24rpx;
+  color: #B5A99A;
+  flex-shrink: 0;
+}
